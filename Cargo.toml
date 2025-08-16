@@ -4,3 +4,4 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+an_a_vm = { git = "https://www.github.com/verdex/an_a_vm", version = "2.0.0", tag = "release-2.0.0" }

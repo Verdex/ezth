@@ -1,4 +1,9 @@
 
+use std::rc::Rc;
+
 pub enum Lexeme {
-    Def
+    Def,
+    Symbol(Rc<str>),
+    LParen,
+    RParen,
 }

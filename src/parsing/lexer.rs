@@ -1,5 +1,6 @@
 
 use std::rc::Rc;
+use std::str::CharIndices;
 use crate::data::*;
 
 pub enum LexResult {
@@ -11,31 +12,27 @@ pub enum LexResult {
 
 pub struct Lexer<'a> {
     line_index : usize, 
-    current_index : usize,
     lines : Vec<&'a str>,
-}
-
-struct RestorePoint {
-    line_index : usize,
-    current_index : usize,
+    current : Option<CharIndices<'a>>
 }
 
 impl<'a> Lexer<'a> {
     pub fn new() -> Self {
-        Lexer { lines: vec![], line_index: 0, current_index: 0 }
+        Lexer { lines: vec![], line_index: 0, current: None }
     }
-    pub fn save(&self) -> RestorePoint {
-        RestorePoint { line_index: self.line_index, current_index: self.current_index }
+    pub fn save(&self) -> Self {
+        Lexer { lines: self.lines.clone(), line_index: self.line_index, current: self.current.clone() }
     }
-    pub fn restore(&mut self, rp : RestorePoint) {
-        self.line_index = rp.line_index;
-        self.current_index = rp.current_index;
+    pub fn restore(&mut self, rp : Self ) {
+        *self = rp;
     }
     pub fn append(&mut self, input : &'a str)  {
         self.lines.push(input);
     }
     pub fn lex(&mut self) -> LexResult {
-        self.lines[self.line_index]
+        if self.line_index >= self.lines.len() {
+            return LexResult::End;
+        }
         LexResult::End
     }
 }

@@ -1,6 +1,5 @@
 
 use std::rc::Rc;
-use std::str::CharIndices;
 use crate::data::*;
 
 pub enum LexResult {
@@ -10,29 +9,38 @@ pub enum LexResult {
     Fatal,
 }
 
-pub struct Lexer<'a> {
-    line_index : usize, 
-    lines : Vec<&'a str>,
-    current : Option<CharIndices<'a>>
+pub struct Lexer {
+    row : usize,
+    col : usize,
+    lines : Vec<Vec<char>>,
 }
 
-impl<'a> Lexer<'a> {
+type RestorePoint = (usize, usize);
+
+impl Lexer {
     pub fn new() -> Self {
-        Lexer { lines: vec![], line_index: 0, current: None }
+        Lexer { lines: vec![], row: 0, col: 0 }
     }
-    pub fn save(&self) -> Self {
-        Lexer { lines: self.lines.clone(), line_index: self.line_index, current: self.current.clone() }
+    pub fn save(&self) -> RestorePoint {
+        (self.row, self.col)
     }
-    pub fn restore(&mut self, rp : Self ) {
-        *self = rp;
+    pub fn restore(&mut self, rp : RestorePoint) {
+        self.row = rp.0;
+        self.col = rp.1;
     }
-    pub fn append(&mut self, input : &'a str)  {
-        self.lines.push(input);
+    pub fn append(&mut self, input : &str)  {
+        self.lines.push(input.chars().collect::<Vec<_>>());
     }
     pub fn lex(&mut self) -> LexResult {
-        if self.line_index >= self.lines.len() {
-            return LexResult::End;
+        while self.row < self.lines.len() {
+            while self.col < self.lines[self.row].len() && self.lines[self.row][self.col].is_whitespace() {
+                self.col += 1;
+            }
+            self.row += 1;
         }
+
+
+
         LexResult::End
     }
 }

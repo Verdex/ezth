@@ -3,62 +3,47 @@ use std::rc::Rc;
 use crate::data::*;
 
 pub enum LexResult {
-    Lexeme(Lexeme),
-    Partial,
+    Lexeme(Vec<Lexeme>),
+    Fatal(usize),
     End,
-    Fatal,
 }
 
-pub struct Lexer {
-    row : usize,
-    col : usize,
-    lines : Vec<Vec<char>>,
+#[derive(Clone, Copy)]
+enum Mode {
+    Init,
+    Symbol,
 }
 
-type RestorePoint = (usize, usize);
+struct L {
+    mode : Mode,
+    results : Vec<Lexeme>,    
+    fatal : Option<usize>,
+    partial : Vec<char>,
+}
 
-impl Lexer {
-    pub fn new() -> Self {
-        Lexer { lines: vec![], row: 0, col: 0 }
-    }
-    pub fn save(&self) -> RestorePoint {
-        (self.row, self.col)
-    }
-    pub fn restore(&mut self, rp : RestorePoint) {
-        self.row = rp.0;
-        self.col = rp.1;
-    }
-    pub fn append(&mut self, input : &str)  {
-        self.lines.push(input.chars().collect::<Vec<_>>());
-    }
-    pub fn lex(&mut self) -> LexResult {
-        while self.row < self.lines.len() {
-            while self.col < self.lines[self.row].len() && self.lines[self.row][self.col].is_whitespace() {
-                self.col += 1;
+pub fn lex(input : &str) -> LexResult {
+    let result = input.char_indices().fold( L { mode: Mode::Init, results: vec![], fatal: None, partial: vec![] }, 
+        |mut l, c| {
+            let (index, c) = c;
+            if l.fatal.is_some() {
+                return l;
             }
-            self.row += 1;
-        }
 
+            let mode = l.mode;
 
+            match (c, mode) {
+                (c, Mode::Init) if c.is_whitespace() => {
+                    l
+                },
+                _ => todo!(),
+            }
+        });
 
-        LexResult::End
-    }
-}
-
-fn lex_def(l : &mut Lexer) -> LexResult {
     LexResult::End
 }
-
 
 #[cfg(test)]
 mod test {
     use super::*;
 
-    #[test]
-    fn blarg() {
-        let mut x = Lexer { input : vec![] };
-        x.append("blah");
-        x.append("blah");
-
-    }
 }

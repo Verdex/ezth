@@ -32,11 +32,21 @@ pub fn lex(input : &str) -> LexResult {
             let mode = l.mode;
 
             match (c, mode) {
-                (c, Mode::Init) if c.is_whitespace() => {
-                    l
+                (c, Mode::Init) if c.is_whitespace() => { },
+                (c, Mode::Init) if c.is_alphabetic() => {
+                    l.mode = Mode::Symbol;
+                    l.partial.push(c);
                 },
+                (c, Mode::Symbol) => c.is_alphanumeric() || c == '_' => {
+                    l.partial.push(c);
+                },
+                (c, Mode::Symbol) => c.is_whitespace() {
+                    l.mode == Mode::Init;
+                },
+
                 _ => todo!(),
             }
+            l
         });
 
     LexResult::End

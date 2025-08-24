@@ -1,12 +1,9 @@
 
 use std::rc::Rc;
+use std::str::CharIndices;
+use std::iter::Peekable;
 use crate::data::*;
 
-pub enum LexResult {
-    Lexeme(Vec<Lexeme>),
-    Fatal(usize),
-    End,
-}
 
 #[derive(Clone, Copy)]
 enum Mode {
@@ -21,39 +18,47 @@ struct L {
     partial : Vec<char>,
 }
 
-pub fn lex(input : &str) -> LexResult {
-    let result = input.char_indices().fold( L { mode: Mode::Init, results: vec![], fatal: None, partial: vec![] }, 
-        |mut l, c| {
-            let (index, c) = c;
-            if l.fatal.is_some() {
-                return l;
-            }
+type Input<'a> = Peekable<CharIndices<'a>>;
+type LexResult = Result<Lexeme, usize>;
 
-            let mode = l.mode;
+pub fn lex(input : &str) -> Result<Vec<Lexeme>, usize> {
+    let w : Input = input.char_indices().peekable();
 
-            match (c, mode) {
-                (c, Mode::Init) if c.is_whitespace() => { },
-                (c, Mode::Init) if c.is_alphabetic() => {
-                    l.mode = Mode::Symbol;
-                    l.partial.push(c);
-                },
-                (c, Mode::Symbol) => c.is_alphanumeric() || c == '_' => {
-                    l.partial.push(c);
-                },
-                (c, Mode::Symbol) => c.is_whitespace() {
-                    l.mode == Mode::Init;
-                },
 
-                _ => todo!(),
-            }
-            l
-        });
 
-    LexResult::End
+    Err(0)
+}
+
+fn symbol(input : &mut Input) -> LexResult {
+    let s = take_until(input, |c| c.is_alphanumeric() || c == '_');
+    Ok(Lexeme::Symbol(s.into_iter().collect::<String>().into()))
+}
+
+// Note:  Only call this function when you know the first char is what you want
+fn take_until<F : FnMut(char) -> bool>(input : &mut Input, mut p : F) -> Vec<char> {
+    let mut ret = vec![input.next().unwrap().1];
+
+    loop {
+        match input.peek() {
+            Some((_, c)) if p(*c) => {
+                ret.push(*c);
+                input.next().unwrap();
+            },
+            Some(_) => { return ret; },
+            None => { return ret; },
+        }
+    }
 }
 
 #[cfg(test)]
 mod test {
     use super::*;
 
+    #[test]
+    fn blarg() {
+        let mut x = 0;
+        let mut w = "blah".char_indices().peekable();
+        let o = take_until(&mut w, |_| { x+=1; true });
+        println!("{:?} {:?}", x, o);
+    }
 }

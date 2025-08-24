@@ -55,10 +55,11 @@ mod test {
     use super::*;
 
     #[test]
-    fn blarg() {
+    fn should_take_while() {
         let mut x = 0;
         let mut w = "blah".char_indices().peekable();
         let o = take_until(&mut w, |_| { x+=1; true });
-        println!("{:?} {:?}", x, o);
+        assert_eq!(x, 3);
+        assert_eq!(o, vec!['b', 'l', 'a', 'h']);
     }
 }

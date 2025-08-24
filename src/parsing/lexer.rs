@@ -22,8 +22,18 @@ type Input<'a> = Peekable<CharIndices<'a>>;
 type LexResult = Result<Lexeme, usize>;
 
 pub fn lex(input : &str) -> Result<Vec<Lexeme>, usize> {
-    let w : Input = input.char_indices().peekable();
+    let mut input : Input = input.char_indices().peekable();
+    let mut ret = vec![];
 
+    loop { 
+        match input.peek() {
+            None => { return Ok(ret); },
+            Some((_, c)) if c.is_alphabetic() || *c == '_' => {
+                ret.push(symbol(&mut input)?);
+            },
+            _ => todo!(),
+        } 
+    } 
 
 
     Err(0)

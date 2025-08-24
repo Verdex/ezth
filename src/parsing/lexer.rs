@@ -5,19 +5,6 @@ use std::iter::Peekable;
 use crate::data::*;
 
 
-#[derive(Clone, Copy)]
-enum Mode {
-    Init,
-    Symbol,
-}
-
-struct L {
-    mode : Mode,
-    results : Vec<Lexeme>,    
-    fatal : Option<usize>,
-    partial : Vec<char>,
-}
-
 type Input<'a> = Peekable<CharIndices<'a>>;
 type LexResult = Result<Lexeme, usize>;
 

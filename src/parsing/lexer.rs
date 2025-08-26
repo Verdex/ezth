@@ -6,7 +6,6 @@ use crate::data::*;
 
 
 type Input<'a> = Peekable<CharIndices<'a>>;
-type LexResult = Result<Lexeme, usize>;
 
 pub fn lex(input : &str) -> Result<Vec<Lexeme>, usize> {
     let mut input : Input = input.char_indices().peekable();
@@ -18,15 +17,17 @@ pub fn lex(input : &str) -> Result<Vec<Lexeme>, usize> {
             Some((_, c)) if c.is_alphabetic() || *c == '_' => {
                 ret.push(symbol(&mut input)?);
             },
+            Some((_, c)) if punct_char(*c) => {
+                ret.append(&mut punct(&mut input)?);
+            },
             _ => todo!(),
         } 
     } 
 
-
     Err(0)
 }
 
-fn symbol(input : &mut Input) -> LexResult {
+fn symbol(input : &mut Input) -> Result<Lexeme, usize> {
     let s = take_until(input, |c| c.is_alphanumeric() || c == '_');
     let s = s.into_iter().collect::<String>();
 
@@ -34,6 +35,79 @@ fn symbol(input : &mut Input) -> LexResult {
         "def" => Ok(Lexeme::Def),
         s => Ok(Lexeme::Symbol(s.into())),
     }
+}
+
+fn punct(input : &mut Input) -> Result<Vec<Lexeme>, usize> {
+    let s = take_until(input, |c| punct_char(c));
+    let mut s = s.into_iter().collect::<String>();
+    let mut remainder = vec![];
+
+    let mut ret = vec![];
+    while !s.is_empty() {
+        match s.as_str() {
+            "=>" => { ret.push(Lexeme::DRArrow); },
+            "(" => { 
+                ret.push(Lexeme::LParen); 
+                s.remove(0);
+                s.remove(0);
+            },
+            ")" => { 
+                ret.push(Lexeme::RParen); 
+                s.remove(0);
+            },
+            "{" => { 
+                ret.push(Lexeme::LCurl); 
+                s.remove(0);
+            },
+            "}" => { 
+                ret.push(Lexeme::RCurl); 
+                s.remove(0);
+            },
+            "[" => { 
+                ret.push(Lexeme::LSquare); 
+                s.remove(0);
+            },
+            "]" => { 
+                ret.push(Lexeme::RSquare); 
+                s.remove(0);
+            },
+            "." => { 
+                ret.push(Lexeme::Dot); 
+                s.remove(0);
+            },
+            "," => { 
+                ret.push(Lexeme::Comma); 
+                s.remove(0);
+            },
+            "|" => { 
+                ret.push(Lexeme::OrBar); 
+                s.remove(0);
+            },
+            _ => { 
+                remainder.insert(0, s.pop().unwrap());
+            },
+        }
+        if s.is_empty() {
+            s = remainder.into_iter().collect::<String>();
+            remainder = vec![];
+        }
+    }
+
+    Ok(ret)
+}
+
+fn punct_char(input : char) -> bool {
+    input == '(' ||
+    input == ')' ||
+    input == '{' ||
+    input == '}' ||
+    input == '[' ||
+    input == ']' ||
+    input == '.' ||
+    input == ',' ||
+    input == '|' ||
+    input == '=' ||
+    input == '>' 
 }
 
 // Note:  Only call this function when you know the first char is what you want

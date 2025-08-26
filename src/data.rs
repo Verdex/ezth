@@ -6,4 +6,12 @@ pub enum Lexeme {
     Symbol(Rc<str>),
     LParen,
     RParen,
+    LCurl,
+    RCurl,
+    LSquare,
+    RSquare,
+    Dot,
+    Comma,
+    OrBar,
+    DRArrow,
 }

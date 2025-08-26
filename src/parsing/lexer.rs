@@ -28,7 +28,12 @@ pub fn lex(input : &str) -> Result<Vec<Lexeme>, usize> {
 
 fn symbol(input : &mut Input) -> LexResult {
     let s = take_until(input, |c| c.is_alphanumeric() || c == '_');
-    Ok(Lexeme::Symbol(s.into_iter().collect::<String>().into()))
+    let s = s.into_iter().collect::<String>();
+
+    match s.as_str() {
+        "def" => Ok(Lexeme::Def),
+        s => Ok(Lexeme::Symbol(s.into())),
+    }
 }
 
 // Note:  Only call this function when you know the first char is what you want

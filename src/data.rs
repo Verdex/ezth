@@ -18,3 +18,13 @@ pub enum Lexeme {
     DRArrow,
     Equal,
 }
+
+pub enum ExprOrDef {
+    Expr(Expr)
+    // type def
+    // fun def
+}
+
+pub enum Expr {
+    Number,
+}

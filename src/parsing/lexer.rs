@@ -17,6 +17,9 @@ pub fn lex(input : &str) -> Result<Vec<Lexeme>, usize> {
             Some((_, c)) if c.is_alphabetic() || *c == '_' => {
                 ret.push(symbol(&mut input)?);
             },
+            Some((_, c)) if c.is_numeric() => {
+                ret.push(number(&mut input)?);
+            },
             Some((_, c)) if punct_char(*c) => {
                 ret.append(&mut punct(&mut input)?);
             },
@@ -25,6 +28,12 @@ pub fn lex(input : &str) -> Result<Vec<Lexeme>, usize> {
     } 
 
     Err(0)
+}
+
+fn number(input : &mut Input) -> Result<Lexeme, usize> {
+    let s = take_until(input, |c| c.is_numeric());
+    let s = s.into_iter().collect::<String>();
+    Ok(Lexeme::Number(s.into()))
 }
 
 fn symbol(input : &mut Input) -> Result<Lexeme, usize> {

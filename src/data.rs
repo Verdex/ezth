@@ -5,6 +5,7 @@ use std::rc::Rc;
 pub enum Lexeme {
     Def,
     Symbol(Rc<str>),
+    Number(Rc<str>),
     LParen,
     RParen,
     LCurl,

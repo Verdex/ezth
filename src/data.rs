@@ -14,4 +14,5 @@ pub enum Lexeme {
     Comma,
     OrBar,
     DRArrow,
+    Equal,
 }

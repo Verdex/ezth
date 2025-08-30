@@ -38,61 +38,31 @@ fn symbol(input : &mut Input) -> Result<Lexeme, usize> {
 }
 
 fn punct(input : &mut Input) -> Result<Vec<Lexeme>, usize> {
-    let s = take_until(input, |c| punct_char(c));
-    let mut s = s.into_iter().collect::<String>();
-    let mut remainder = vec![];
-
     let mut ret = vec![];
-    while !s.is_empty() {
-        match s.as_str() {
-            "=>" => { ret.push(Lexeme::DRArrow); },
-            "(" => { 
-                ret.push(Lexeme::LParen); 
-                s.remove(0);
-                s.remove(0);
+    while let Some((_, c)) = input.peek() && punct_char(*c) {
+        match c {
+            '=' => {
+                input.next().unwrap();
+                if let Some((_, c)) = input.peek() && *c == '>' {
+                    ret.push(Lexeme::DRArrow);
+                }
+                else {
+                    return Ok(ret);
+                }
             },
-            ")" => { 
-                ret.push(Lexeme::RParen); 
-                s.remove(0);
-            },
-            "{" => { 
-                ret.push(Lexeme::LCurl); 
-                s.remove(0);
-            },
-            "}" => { 
-                ret.push(Lexeme::RCurl); 
-                s.remove(0);
-            },
-            "[" => { 
-                ret.push(Lexeme::LSquare); 
-                s.remove(0);
-            },
-            "]" => { 
-                ret.push(Lexeme::RSquare); 
-                s.remove(0);
-            },
-            "." => { 
-                ret.push(Lexeme::Dot); 
-                s.remove(0);
-            },
-            "," => { 
-                ret.push(Lexeme::Comma); 
-                s.remove(0);
-            },
-            "|" => { 
-                ret.push(Lexeme::OrBar); 
-                s.remove(0);
-            },
-            _ => { 
-                remainder.insert(0, s.pop().unwrap());
-            },
+            '(' => { ret.push(Lexeme::LParen); },
+            ')' => { ret.push(Lexeme::RParen); },
+            '{' => { ret.push(Lexeme::LCurl); },
+            '}' => { ret.push(Lexeme::RCurl); },
+            '[' => { ret.push(Lexeme::LSquare); },
+            ']' => { ret.push(Lexeme::RSquare); },
+            '.' => { ret.push(Lexeme::Dot); },
+            ',' =>{ ret.push(Lexeme::Comma); },
+            '|' => { ret.push(Lexeme::OrBar); },
+            _ => unreachable!(),
         }
-        if s.is_empty() {
-            s = remainder.into_iter().collect::<String>();
-            remainder = vec![];
-        }
+        input.next().unwrap();
     }
-
     Ok(ret)
 }
 

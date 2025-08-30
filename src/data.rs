@@ -1,6 +1,7 @@
 
 use std::rc::Rc;
 
+#[derive(Debug, PartialEq)]
 pub enum Lexeme {
     Def,
     Symbol(Rc<str>),

@@ -46,6 +46,10 @@ fn punct(input : &mut Input) -> Result<Vec<Lexeme>, usize> {
                 if let Some((_, c)) = input.peek() && *c == '>' {
                     ret.push(Lexeme::DRArrow);
                 }
+                else if let Some((_, c)) = input.peek() && punct_char(*c) {
+                    ret.push(Lexeme::Equal);
+                    continue;
+                }
                 else {
                     return Ok(ret);
                 }
@@ -99,6 +103,14 @@ fn take_until<F : FnMut(char) -> bool>(input : &mut Input, mut p : F) -> Vec<cha
 #[cfg(test)]
 mod test {
     use super::*;
+
+    #[test]
+    fn should_parse_punctuation_stream() {
+        use Lexeme::*;
+        let mut w = "(){}[].,|==>".char_indices().peekable();
+        let o = punct(&mut w).unwrap();
+        assert_eq!(o, vec![LParen, RParen, LCurl, RCurl, LSquare, RSquare, Dot, Comma, OrBar, Equal, DRArrow]);
+    }
 
     #[test]
     fn should_take_while() {

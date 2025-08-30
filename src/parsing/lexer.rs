@@ -14,6 +14,9 @@ pub fn lex(input : &str) -> Result<Vec<Lexeme>, usize> {
     loop { 
         match input.peek() {
             None => { return Ok(ret); },
+            Some((_, c)) if c.is_whitespace() => {
+                whitespace(&mut input)?;
+            },
             Some((_, c)) if c.is_alphabetic() || *c == '_' => {
                 ret.push(symbol(&mut input)?);
             },
@@ -23,11 +26,16 @@ pub fn lex(input : &str) -> Result<Vec<Lexeme>, usize> {
             Some((_, c)) if punct_char(*c) => {
                 ret.append(&mut punct(&mut input)?);
             },
-            _ => todo!(),
+            Some((i, _)) => { return Err(*i); },
         } 
     } 
+}
 
-    Err(0)
+fn whitespace(input : &mut Input) -> Result<(), usize> {
+    while let Some((_, c)) = input.peek() && c.is_whitespace() {
+        input.next().unwrap();
+    }
+    Ok(())
 }
 
 fn number(input : &mut Input) -> Result<Lexeme, usize> {

@@ -19,6 +19,7 @@ use super::lexer;
     expr |index_pattern> call_expr
     (expr)
     expr(expr_list)
+    let sym = expr in expr
 
     Pattern
     data (exact)
@@ -36,6 +37,7 @@ use super::lexer;
 
 */
 
+// intermedia result can just be keeping track of indices until you can complete the item?
 
 // [fn(input) -> intermedia result]
 

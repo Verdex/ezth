@@ -59,6 +59,7 @@ pub fn init() -> (JoinHandle<()>, Sender<String>, Receiver<ParseResult>) {
 }
 
 fn parse(send : Sender<ParseResult>, rec : Receiver<String>) {
+    // TODO iterator that produces the next lexeme from the string or else wait on the receiver
 
     //let output = lexer::lex(input); 
 

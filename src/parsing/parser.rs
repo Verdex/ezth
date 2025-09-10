@@ -42,11 +42,6 @@ use super::lexer;
 
 */
 
-// intermedia result can just be keeping track of indices until you can complete the item?
-
-// [fn(input) -> intermedia result]
-
-// TODO need different error
 
 pub enum ParseResult {
     Success,
@@ -67,6 +62,6 @@ fn parse(send : Sender<ParseResult>, rec : Receiver<String>) {
 
     //let output = lexer::lex(input); 
 
-    todo!()
+    //todo!()
 }
 

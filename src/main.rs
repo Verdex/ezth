@@ -5,35 +5,34 @@ mod parsing;
 use std::io::{self, Write};
 use std::rc::Rc;
 
+use crate::parsing::parser;
+
 fn main() {
-    let mut prev_line = String::new();
+
+    let (parse_thread, send_input, rec_output) = parser::init();
+
 
     loop {
 
-        if prev_line.is_empty() {
-            print!("> ");
-        }
-        else {
-            print!("| ");
-        }
+        print!("> ");
 
         match io::stdout().flush() {
             Err(e) => panic!("encountered io error: {e}"),
             _ => { },
         }
 
-        let input = match read(prev_line) {
+        let input = match read() {
             Ok(input) => input,
             Err(e) => panic!("encountered io error: {e}"),
         };
 
-        prev_line = String::new();
+        send_input.send(input).expect("encountered parse send error");
+
     }
 }
 
-fn read(mut prev : String) -> io::Result<Rc<str>> {
+fn read() -> io::Result<String> {
     let mut s = String::new();
     io::stdin().read_line(&mut s)?;
-    prev.push_str(&s);
-    Ok(prev.into())
+    Ok(s)
 }

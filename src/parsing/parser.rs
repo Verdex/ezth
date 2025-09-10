@@ -34,6 +34,9 @@ use super::lexer;
     predicate
     match_with ?
 
+    IndexPattern
+    $0 (or something)
+
 
 */
 
@@ -42,13 +45,25 @@ use super::lexer;
 // [fn(input) -> intermedia result]
 
 // TODO need different error
+
+pub enum IncProg {
+    LetExpr(Vec<(usize, usize)>),
+}
+
 pub fn parse(input : &str) -> Result<(Vec<ExprOrDef>, ?), ()> {
 
     let output = lexer::lex(input); 
 
 
-
-
-
     todo!()
+}
+
+fn let_expr() -> Result<Expr, ()> {
+/*    blarg.is_let // intermedia or thing if thing is empty return intermediate result
+    blarg.is_sym
+    blarg.is_eq
+    blarg.is_expr
+    blarg.is_in
+    blarg.is_expr
+*/
 }

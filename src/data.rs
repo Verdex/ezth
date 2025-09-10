@@ -27,4 +27,5 @@ pub enum ExprOrDef {
 
 pub enum Expr {
     Number,
+    Let { var: Rc<str>, val: Box<Expr>, body: Box<Expr> }, 
 }

@@ -1,6 +1,8 @@
 
-use crate::data::*;
+use std::thread::{ self, JoinHandle };
+use std::sync::mpsc::{ self, Sender, Receiver };
 
+use crate::data::*;
 use super::lexer;
 
 /*
@@ -46,24 +48,25 @@ use super::lexer;
 
 // TODO need different error
 
-pub enum IncProg {
-    LetExpr(Vec<(usize, usize)>),
+pub enum ParseResult {
+    Success,
+    Incremental,
+    Fatal,
 }
 
-pub fn parse(input : &str) -> Result<(Vec<ExprOrDef>, ?), ()> {
+pub fn init() -> (JoinHandle<()>, Sender<String>, Receiver<ParseResult>) {
+    let (in_send, in_rec) = mpsc::channel();
+    let (out_send, out_rec) = mpsc::channel();
 
-    let output = lexer::lex(input); 
+    let t = thread::spawn(move || parse(out_send, in_rec));
 
+    (t, in_send, out_rec)
+}
+
+fn parse(send : Sender<ParseResult>, rec : Receiver<String>) {
+
+    //let output = lexer::lex(input); 
 
     todo!()
 }
 
-fn let_expr() -> Result<Expr, ()> {
-/*    blarg.is_let // intermedia or thing if thing is empty return intermediate result
-    blarg.is_sym
-    blarg.is_eq
-    blarg.is_expr
-    blarg.is_in
-    blarg.is_expr
-*/
-}

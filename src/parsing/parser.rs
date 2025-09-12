@@ -66,3 +66,43 @@ fn parse(send : Sender<ParseResult>, rec : Receiver<String>) {
     //todo!()
 }
 
+struct Input {
+    lexemes : Vec<(usize, Lexeme)>,
+    rec : Receiver<String>,
+}
+
+impl Input {
+    pub fn peek(&mut self) -> Result<&Lexeme, usize> {
+        if self.lexemes.len() == 0 {
+            self.wait()?;
+        }
+        Ok(&self.lexemes[0].1)
+    }
+
+    // Note:  Intended to use only for checking the index that an unexpected 
+    // lexeme appears at.  If there aren't any lexemes ready then index 0 is
+    // as good as any.
+    pub fn peek_index(&self) -> usize {
+        if self.lexemes.len() == 0 { 
+            0
+        }
+        else {
+            self.lexemes[0].0
+        }
+    }
+
+    pub fn take(&mut self) -> Result<Lexeme, usize> {
+        if self.lexemes.len() == 0 {
+            self.wait()?;
+        }
+        Ok(self.lexemes.pop().unwrap().1)
+    }
+
+    fn wait(&mut self) -> Result<(), usize> {
+        let s = self.rec.recv().expect("Parser Input recv failure");
+        let ls = lexer::lex(&s)?;
+        self.lexemes = ls.into_iter().enumerate().collect();
+        Ok(())
+    }
+}
+

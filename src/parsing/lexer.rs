@@ -70,6 +70,7 @@ fn punct(input : &mut Input) -> Result<Vec<Lexeme>, usize> {
                     continue;
                 }
                 else {
+                    ret.push(Lexeme::Equal);
                     return Ok(ret);
                 }
             },
@@ -129,6 +130,20 @@ mod test {
         let mut w = "(){}[].,|==>".char_indices().peekable();
         let o = punct(&mut w).unwrap();
         assert_eq!(o, vec![LParen, RParen, LCurl, RCurl, LSquare, RSquare, Dot, Comma, OrBar, Equal, DRArrow]);
+    }
+
+    #[test]
+    fn should_parse_double_right_arrow() {
+        let mut input = "=>".char_indices().peekable();
+        let o = punct(&mut input).unwrap();
+        assert_eq!(o, vec![Lexeme::DRArrow])
+    }
+
+    #[test]
+    fn should_parse_equal() {
+        let mut input = "=".char_indices().peekable();
+        let o = punct(&mut input).unwrap();
+        assert_eq!(o, vec![Lexeme::Equal])
     }
 
     #[test]

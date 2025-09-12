@@ -69,6 +69,7 @@ fn parse(send : Sender<ParseResult>, rec : Receiver<String>) {
 struct Input {
     lexemes : Vec<(usize, Lexeme)>,
     rec : Receiver<String>,
+    send : Sender<ParseResult>,
 }
 
 impl Input {
@@ -99,6 +100,7 @@ impl Input {
     }
 
     fn wait(&mut self) -> Result<(), usize> {
+        self.send.send(ParseResult::Incremental).expect("Parser Output send failure");
         let s = self.rec.recv().expect("Parser Input recv failure");
         let ls = lexer::lex(&s)?;
         self.lexemes = ls.into_iter().enumerate().collect();

@@ -59,13 +59,34 @@ pub fn init() -> (JoinHandle<()>, Sender<String>, Receiver<ParseResult>) {
 }
 
 fn parse(send : Sender<ParseResult>, rec : Receiver<String>) {
-    // TODO iterator that produces the next lexeme from the string or else wait on the receiver
-
-    //let output = lexer::lex(input); 
-
-    //todo!()
+    let mut input = Input { lexemes: vec![], send: send.clone(), rec };
 }
 
+fn parse_expr(input : &mut Input) -> Result<Expr, usize> {
+    let e = if input.check(|l| l.eq(&Lexeme::Let))? {
+        parse_let(input)?
+    }
+    else if matches!(input.peek()?, Lexeme::Number(_)) {
+        Expr::Number(input.take()?.value())
+    }
+    else {
+        todo!()
+    };
+    Ok(e)
+}
+
+fn parse_let(input : &mut Input) -> Result<Expr, usize> {
+    let var = input.expect(|l| matches!(l, Lexeme::Symbol(_)))?;
+    input.expect(|l| matches!(l, Lexeme::Equal))?;
+    let val = Box::new(parse_expr(input)?);
+    input.expect(|l| matches!(l, Lexeme::In))?;
+    let body = Box::new(parse_expr(input)?);
+    Ok(Expr::Let { var: var.value(), val, body })
+}
+
+
+
+// TODO move 
 struct Input {
     lexemes : Vec<(usize, Lexeme)>,
     rec : Receiver<String>,
@@ -97,7 +118,6 @@ impl Input {
             Err(self.lexemes[0].0)
         }
     }
-    // TODO clean out
     pub fn peek(&mut self) -> Result<&Lexeme, usize> {
         if self.lexemes.len() == 0 {
             self.wait()?;

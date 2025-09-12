@@ -22,10 +22,11 @@ pub enum Lexeme {
 }
 
 impl Lexeme {
-    pub fn to_name(&self) -> Rc<str> {
+    pub fn value(&self) -> Rc<str> {
         match self {
             Lexeme::Symbol(x) => Rc::clone(x),
-            x => panic!("invalid to_name target {:?}", x),
+            Lexeme::Number(x) => Rc::clone(x),
+            _ => todo!(),
         }
     }
 }
@@ -36,6 +37,6 @@ pub enum ExprOrDef {
 }
 
 pub enum Expr {
-    Number,
+    Number(Rc<str>),
     Let { var: Rc<str>, val: Box<Expr>, body: Box<Expr> }, 
 }

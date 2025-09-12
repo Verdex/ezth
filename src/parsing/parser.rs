@@ -65,7 +65,9 @@ fn parse(send : Sender<ParseResult>, rec : Receiver<String>) {
         Ok(w) => {
             send.send(ParseResult::Success(ExprOrDef::Expr(w))).expect("Parser Output send fail");
         },
-        Err(_) => todo!(),
+        Err(i) => {
+            send.send(ParseResult::Fatal(i)).expect("Parser Output send fail");
+        },
     }
 }
 

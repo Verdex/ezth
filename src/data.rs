@@ -31,11 +31,13 @@ impl Lexeme {
     }
 }
 
+#[derive(Debug)]
 pub enum ExprOrDef {
     Expr(Expr)
     // fun def
 }
 
+#[derive(Debug)]
 pub enum Expr {
     Number(Arc<str>),
     Let { var: Arc<str>, val: Box<Expr>, body: Box<Expr> }, 

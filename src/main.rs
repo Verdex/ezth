@@ -5,16 +5,16 @@ mod parsing;
 use std::io::{self, Write};
 use std::rc::Rc;
 
-use crate::parsing::parser;
+use crate::parsing::parser::{ self, ParseResult };
 
 fn main() {
 
     let (parse_thread, send_input, rec_output) = parser::init();
 
+    print!("> ");
 
     loop {
 
-        print!("> ");
 
         match io::stdout().flush() {
             Err(e) => panic!("encountered io error: {e}"),
@@ -27,7 +27,16 @@ fn main() {
         };
 
         send_input.send(input).expect("encountered parse send error");
+        let result = rec_output.recv().expect("encountered parse recv error");
 
+        match result {
+            ParseResult::Success(v) => { 
+                println!("{:?}", v);
+                print!("> ");
+            },
+            ParseResult::Fatal(i) => { println!("fatal at {}", i); },
+            ParseResult::Incremental => { print!("| "); },
+        }
     }
 }
 

@@ -73,6 +73,18 @@ struct Input {
 }
 
 impl Input {
+    pub fn check<F:Fn(&Lexeme) -> bool>(&mut self, f : F) -> Result<bool, usize> {
+        if self.lexemes.len() == 0 {
+            self.wait()?;
+        }
+        if f(&self.lexemes[0].1) {
+            self.lexemes.remove(0);
+            Ok(true)
+        }
+        else {
+            Ok(false)
+        }
+    }
     pub fn peek(&mut self) -> Result<&Lexeme, usize> {
         if self.lexemes.len() == 0 {
             self.wait()?;

@@ -21,6 +21,15 @@ pub enum Lexeme {
     Equal,
 }
 
+impl Lexeme {
+    pub fn to_name(&self) -> Rc<str> {
+        match self {
+            Lexeme::Symbol(x) => Rc::clone(x),
+            x => panic!("invalid to_name target {:?}", x),
+        }
+    }
+}
+
 pub enum ExprOrDef {
     Expr(Expr)
     // fun def

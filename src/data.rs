@@ -4,6 +4,8 @@ use std::rc::Rc;
 #[derive(Debug, PartialEq)]
 pub enum Lexeme {
     Def,
+    Let, 
+    In,
     Symbol(Rc<str>),
     Number(Rc<str>),
     LParen,
@@ -21,7 +23,6 @@ pub enum Lexeme {
 
 pub enum ExprOrDef {
     Expr(Expr)
-    // type def
     // fun def
 }
 

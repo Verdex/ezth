@@ -44,9 +44,9 @@ use super::lexer;
 
 
 pub enum ParseResult {
-    Success,
+    Success(ExprOrDef),
     Incremental,
-    Fatal,
+    Fatal(usize),
 }
 
 pub fn init() -> (JoinHandle<()>, Sender<String>, Receiver<ParseResult>) {
@@ -60,6 +60,13 @@ pub fn init() -> (JoinHandle<()>, Sender<String>, Receiver<ParseResult>) {
 
 fn parse(send : Sender<ParseResult>, rec : Receiver<String>) {
     let mut input = Input { lexemes: vec![], send: send.clone(), rec };
+
+    match parse_expr(&mut input) {
+        Ok(w) => {
+            send.send(ParseResult::Success(ExprOrDef::Expr(w))).expect("Parser Output send fail");
+        },
+        Err(_) => todo!(),
+    }
 }
 
 fn parse_expr(input : &mut Input) -> Result<Expr, usize> {

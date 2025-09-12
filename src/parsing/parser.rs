@@ -85,6 +85,19 @@ impl Input {
             Ok(false)
         }
     }
+    pub fn expect<F:Fn(&Lexeme) -> bool>(&mut self, f : F) -> Result<Lexeme, usize> {
+        if self.lexemes.len() == 0 {
+            self.wait()?;
+        }
+        if f(&self.lexemes[0].1) {
+            let l = self.lexemes.remove(0);
+            Ok(l.1)
+        }
+        else {
+            Err(self.lexemes[0].0)
+        }
+    }
+    // TODO clean out
     pub fn peek(&mut self) -> Result<&Lexeme, usize> {
         if self.lexemes.len() == 0 {
             self.wait()?;

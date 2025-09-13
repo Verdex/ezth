@@ -61,7 +61,7 @@ impl Input {
         if self.lexemes.len() == 0 {
             self.wait()?;
         }
-        Ok(self.lexemes.pop().unwrap().1)
+        Ok(self.lexemes.remove(0).1)
     }
 
     fn wait(&mut self) -> Result<(), usize> {

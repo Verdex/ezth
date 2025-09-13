@@ -31,7 +31,9 @@ impl Lexeme {
     }
 }
 
+#[derive(Debug)]
 pub enum ParseError {
+    Lex(usize),
     Eof,
     Fatal,
 }

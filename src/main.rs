@@ -7,41 +7,59 @@ use std::io::{self, Write};
 use crate::data::*;
 use crate::parsing::parser;
 
+
+
+
 fn main() {
 
-    let (parse_thread, send_input, rec_output) = parser::init();
-
-    print!("> ");
+    let mut prev_line = String::new();
 
     loop {
 
+        if prev_line.is_empty() {
+            print!("> ");
+        }
+        else {
+            print!("| ");
+        }
 
         match io::stdout().flush() {
             Err(e) => panic!("encountered io error: {e}"),
             _ => { },
         }
 
-        let input = match read() {
+        let input = match read(prev_line) {
             Ok(input) => input,
             Err(e) => panic!("encountered io error: {e}"),
         };
 
-        send_input.send(input).expect("encountered parse send error");
-        let result = rec_output.recv().expect("encountered parse recv error");
+        let def_or_exprs = match parser::parse(&input) {
+            Ok(x) => x,
+            Err(e) => {
 
-        match result {
-            ParseResult::Success(v) => { 
-                println!("{:?}", v);
-                print!("> ");
-            },
-            ParseResult::Fatal(i) => { println!("fatal at {}", i); },
-            ParseResult::Incremental => { print!("| "); },
-        }
+                if matches!(e, ParseError::Eof) {
+                    prev_line = input.to_string();
+                    continue;
+                }
+
+                prev_line = String::new();
+
+
+                println!("parse error");
+                continue;
+            }
+        };
+
+        prev_line = String::new();
+
+        println!("{:?}", def_or_exprs);
     }
+
 }
 
-fn read() -> io::Result<String> {
+fn read(mut prev : String) -> io::Result<String> {
     let mut s = String::new();
     io::stdin().read_line(&mut s)?;
-    Ok(s)
+    prev.push_str(&s);
+    Ok(prev)
 }

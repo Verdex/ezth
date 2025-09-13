@@ -1,10 +1,9 @@
 
-use std::sync::mpsc::{ Sender, Receiver };
+use std::iter::Peekable;
 use crate::data::*;
-use super::lexer;
 
 pub struct Input {
-    ls : Peekable<Lexeme>
+    ls : Peekable<std::vec::IntoIter<Lexeme>>
 }
 
 impl Input {
@@ -15,7 +14,7 @@ impl Input {
     pub fn check<F:Fn(&Lexeme) -> bool>(&mut self, f : F) -> Result<bool, ParseError> {
         match self.ls.peek() {
             Some(l) if f(l) => {
-                self.ls.pop().unwrap();
+                self.ls.next().unwrap();
                 Ok(true)
             },
             Some(_) => Ok(false),
@@ -25,7 +24,7 @@ impl Input {
     pub fn expect<F:Fn(&Lexeme) -> bool>(&mut self, f : F) -> Result<Lexeme, ParseError> {
         match self.ls.peek() {
             Some(l) if f(l) => {
-                let l = self.ls.pop().unwrap();
+                let l = self.ls.next().unwrap();
                 Ok(l)
             },
             Some(_) => Err(ParseError::Fatal),
@@ -39,7 +38,7 @@ impl Input {
         }
     }
     pub fn take(&mut self) -> Result<Lexeme, ParseError> {
-        match self.ls.pop() {
+        match self.ls.next() {
             Some(l) => Ok(l),
             None => Err(ParseError::Eof),
         }

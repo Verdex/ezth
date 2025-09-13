@@ -1,9 +1,8 @@
 
-use std::thread::{ self, JoinHandle };
-use std::sync::mpsc::{ self, Sender, Receiver };
 
 use crate::data::*;
 use super::parse_input::Input;
+use super::lexer;
 
 /*
     def sym = expr
@@ -43,29 +42,19 @@ use super::parse_input::Input;
 */
 
 
-pub fn init() -> (JoinHandle<()>, Sender<String>, Receiver<ParseResult>) {
-    let (in_send, in_rec) = mpsc::channel();
-    let (out_send, out_rec) = mpsc::channel();
+pub fn parse(input : &str) -> Result<ExprOrDef, ParseError> {
+    let input = match lexer::lex(input) {
+        Err(i) => { return Err(ParseError::Lex(i)); },
+        Ok(ls) => ls,
+    };
+    let mut input = Input::new(input);
 
-    let t = thread::spawn(move || parse(out_send, in_rec));
+    let e = parse_expr(&mut input)?;
 
-    (t, in_send, out_rec)
+    Ok(ExprOrDef::Expr(e))
 }
 
-fn parse(send : Sender<ParseResult>, rec : Receiver<String>) {
-    let mut input = Input::new(send.clone(), rec);
-
-    match parse_expr(&mut input) {
-        Ok(w) => {
-            send.send(ParseResult::Success(ExprOrDef::Expr(w))).expect("Parser Output send fail");
-        },
-        Err(i) => {
-            send.send(ParseResult::Fatal(i)).expect("Parser Output send fail");
-        },
-    }
-}
-
-fn parse_expr(input : &mut Input) -> Result<Expr, usize> {
+fn parse_expr(input : &mut Input) -> Result<Expr, ParseError> {
     let e = 
     if let Lexeme::Symbol(v) = input.peek()? {
         Expr::Symbol(input.take()?.value())
@@ -77,14 +66,13 @@ fn parse_expr(input : &mut Input) -> Result<Expr, usize> {
         Expr::Number(input.take()?.value())
     }
     else {
-        let index = input.peek_index();
-        panic!("parse expr TODO {:?}::{index}", input.peek())
+        panic!("parse expr TODO {:?}", input.peek())
     };
     // TODO can have multiple after expr (also need a stop)
     parse_after_expr(input, e)
 }
 
-fn parse_after_expr(input : &mut Input, e : Expr) -> Result<Expr, usize> {
+fn parse_after_expr(input : &mut Input, e : Expr) -> Result<Expr, ParseError> {
     if input.check(|l| l.eq(&Lexeme::LParen))? {
         let params = parse_call_params(input)?;
         Ok(Expr::Call{ f: Box::new(e), params })
@@ -94,7 +82,7 @@ fn parse_after_expr(input : &mut Input, e : Expr) -> Result<Expr, usize> {
     }
 }
 
-fn parse_let(input : &mut Input) -> Result<Expr, usize> {
+fn parse_let(input : &mut Input) -> Result<Expr, ParseError> {
     let var = input.expect(|l| matches!(l, Lexeme::Symbol(_)))?;
     input.expect(|l| matches!(l, Lexeme::Equal))?;
     let val = Box::new(parse_expr(input)?);
@@ -103,7 +91,7 @@ fn parse_let(input : &mut Input) -> Result<Expr, usize> {
     Ok(Expr::Let { var: var.value(), val, body })
 }
 
-fn parse_call_params(input : &mut Input) -> Result<Vec<Expr>, usize> {
+fn parse_call_params(input : &mut Input) -> Result<Vec<Expr>, ParseError> {
     let mut ret = vec![];
     if input.check(|l| l.eq(&Lexeme::RParen))? {
         return Ok(vec![]);

@@ -1,6 +1,5 @@
 
-use std::thread::{ self, JoinHandle };
-use std::sync::mpsc::{ self, Sender, Receiver };
+use std::sync::mpsc::{ Sender, Receiver };
 use crate::data::*;
 use super::lexer;
 

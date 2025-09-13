@@ -3,7 +3,6 @@ mod data;
 mod parsing;
 
 use std::io::{self, Write};
-use std::rc::Rc;
 
 use crate::data::*;
 use crate::parsing::parser;

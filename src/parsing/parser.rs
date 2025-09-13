@@ -66,16 +66,32 @@ fn parse(send : Sender<ParseResult>, rec : Receiver<String>) {
 }
 
 fn parse_expr(input : &mut Input) -> Result<Expr, usize> {
-    let e = if input.check(|l| l.eq(&Lexeme::Let))? {
+    let e = 
+    if let Lexeme::Symbol(v) = input.peek()? {
+        Expr::Symbol(input.take()?.value())
+    }
+    else if input.check(|l| l.eq(&Lexeme::Let))? {
         parse_let(input)?
     }
     else if matches!(input.peek()?, Lexeme::Number(_)) {
         Expr::Number(input.take()?.value())
     }
     else {
-        todo!()
+        let index = input.peek_index();
+        panic!("parse expr TODO {:?}::{index}", input.peek())
     };
-    Ok(e)
+    // TODO can have multiple after expr (also need a stop)
+    parse_after_expr(input, e)
+}
+
+fn parse_after_expr(input : &mut Input, e : Expr) -> Result<Expr, usize> {
+    if input.check(|l| l.eq(&Lexeme::LParen))? {
+        let params = parse_call_params(input)?;
+        Ok(Expr::Call{ f: Box::new(e), params })
+    }
+    else {
+        Ok(e)
+    }
 }
 
 fn parse_let(input : &mut Input) -> Result<Expr, usize> {
@@ -85,4 +101,17 @@ fn parse_let(input : &mut Input) -> Result<Expr, usize> {
     input.expect(|l| matches!(l, Lexeme::In))?;
     let body = Box::new(parse_expr(input)?);
     Ok(Expr::Let { var: var.value(), val, body })
+}
+
+fn parse_call_params(input : &mut Input) -> Result<Vec<Expr>, usize> {
+    let mut ret = vec![];
+    if input.check(|l| l.eq(&Lexeme::RParen))? {
+        return Ok(vec![]);
+    }
+    ret.push(parse_expr(input)?);
+    while input.check(|l| l.eq(&Lexeme::RParen))? == false {
+        input.expect(|l| l.eq(&Lexeme::Comma))?;
+        ret.push(parse_expr(input)?);
+    }
+    Ok(ret)
 }

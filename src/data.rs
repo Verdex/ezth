@@ -26,7 +26,7 @@ impl Lexeme {
         match self {
             Lexeme::Symbol(x) => Arc::clone(x),
             Lexeme::Number(x) => Arc::clone(x),
-            _ => todo!(),
+            x => panic!("value failure {:?}", x),
         }
     }
 }
@@ -45,6 +45,8 @@ pub enum ExprOrDef {
 
 #[derive(Debug)]
 pub enum Expr {
+    Symbol(Arc<str>),
     Number(Arc<str>),
     Let { var: Arc<str>, val: Box<Expr>, body: Box<Expr> }, 
+    Call { f : Box<Expr>, params : Vec<Expr> },
 }

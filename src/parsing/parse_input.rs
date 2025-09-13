@@ -4,71 +4,44 @@ use crate::data::*;
 use super::lexer;
 
 pub struct Input {
-    lexemes : Vec<(usize, Lexeme)>,
-    rec : Receiver<String>,
-    send : Sender<ParseResult>,
+    ls : Peekable<Lexeme>
 }
 
 impl Input {
-    pub fn new(send : Sender<ParseResult>, rec : Receiver<String>) -> Self {
-        Input { lexemes: vec![], send, rec }
+    pub fn new(input : Vec<Lexeme>) -> Self {
+        Input { ls: input.into_iter().peekable() }
     }
 
-    pub fn check<F:Fn(&Lexeme) -> bool>(&mut self, f : F) -> Result<bool, usize> {
-        if self.lexemes.len() == 0 {
-            self.wait()?;
-        }
-        if f(&self.lexemes[0].1) {
-            self.lexemes.remove(0);
-            Ok(true)
-        }
-        else {
-            Ok(false)
+    pub fn check<F:Fn(&Lexeme) -> bool>(&mut self, f : F) -> Result<bool, ParseError> {
+        match self.ls.peek() {
+            Some(l) if f(l) => {
+                self.ls.pop().unwrap();
+                Ok(true)
+            },
+            Some(_) => Ok(false),
+            None => Err(ParseError::Eof),
         }
     }
-    pub fn expect<F:Fn(&Lexeme) -> bool>(&mut self, f : F) -> Result<Lexeme, usize> {
-        if self.lexemes.len() == 0 {
-            self.wait()?;
-        }
-        if f(&self.lexemes[0].1) {
-            let l = self.lexemes.remove(0);
-            Ok(l.1)
-        }
-        else {
-            Err(self.lexemes[0].0)
+    pub fn expect<F:Fn(&Lexeme) -> bool>(&mut self, f : F) -> Result<Lexeme, ParseError> {
+        match self.ls.peek() {
+            Some(l) if f(l) => {
+                let l = self.ls.pop().unwrap();
+                Ok(l)
+            },
+            Some(_) => Err(ParseError::Fatal),
+            None => Err(ParseError::Eof),
         }
     }
-    pub fn peek(&mut self) -> Result<&Lexeme, usize> {
-        if self.lexemes.len() == 0 {
-            self.wait()?;
-        }
-        Ok(&self.lexemes[0].1)
-    }
-
-    // Note:  Intended to use only for checking the index that an unexpected 
-    // lexeme appears at.  If there aren't any lexemes ready then index 0 is
-    // as good as any.
-    pub fn peek_index(&self) -> usize {
-        if self.lexemes.len() == 0 { 
-            0
-        }
-        else {
-            self.lexemes[0].0
+    pub fn peek(&mut self) -> Result<&Lexeme, ParseError> {
+        match self.ls.peek() {
+            Some(l) => Ok(l),
+            None => Err(ParseError::Eof),
         }
     }
-
-    pub fn take(&mut self) -> Result<Lexeme, usize> {
-        if self.lexemes.len() == 0 {
-            self.wait()?;
+    pub fn take(&mut self) -> Result<Lexeme, ParseError> {
+        match self.ls.pop() {
+            Some(l) => Ok(l),
+            None => Err(ParseError::Eof),
         }
-        Ok(self.lexemes.remove(0).1)
-    }
-
-    fn wait(&mut self) -> Result<(), usize> {
-        self.send.send(ParseResult::Incremental).expect("Parser Output send failure");
-        let s = self.rec.recv().expect("Parser Input recv failure");
-        let ls = lexer::lex(&s)?;
-        self.lexemes = ls.into_iter().enumerate().collect();
-        Ok(())
     }
 }

@@ -31,10 +31,9 @@ impl Lexeme {
     }
 }
 
-pub enum ParseResult {
-    Success(ExprOrDef),
-    Incremental,
-    Fatal(usize),
+pub enum ParseError {
+    Eof,
+    Fatal,
 }
 
 #[derive(Debug)]

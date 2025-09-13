@@ -31,6 +31,12 @@ impl Lexeme {
     }
 }
 
+pub enum ParseResult {
+    Success(ExprOrDef),
+    Incremental,
+    Fatal(usize),
+}
+
 #[derive(Debug)]
 pub enum ExprOrDef {
     Expr(Expr)

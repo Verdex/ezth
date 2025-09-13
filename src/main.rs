@@ -5,7 +5,8 @@ mod parsing;
 use std::io::{self, Write};
 use std::rc::Rc;
 
-use crate::parsing::parser::{ self, ParseResult };
+use crate::data::*;
+use crate::parsing::parser;
 
 fn main() {
 

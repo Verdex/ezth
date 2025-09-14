@@ -79,6 +79,12 @@ fn parse_expr(input : &mut Input) -> Result<Expr, ParseError> {
 }
 
 fn parse_after_expr(input : &mut Input, e : Expr) -> Result<Expr, ParseError> {
+    match input.peek() {
+        Err(ParseError::Eof) => { return Ok(e); },
+        Err(err) => { return Err(err); },
+        Ok(_) => { },
+    }
+
     if input.check(|l| l.eq(&Lexeme::LParen))? {
         let params = parse_call_params(input)?;
         Ok(Expr::Call{ f: Box::new(e), params })

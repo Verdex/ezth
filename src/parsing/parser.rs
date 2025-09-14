@@ -86,9 +86,8 @@ fn parse_let(input : &mut Input) -> Result<Expr, ParseError> {
     let var = input.expect(|l| matches!(l, Lexeme::Symbol(_)))?;
     input.expect(|l| matches!(l, Lexeme::Equal))?;
     let val = Box::new(parse_expr(input)?);
-    input.expect(|l| matches!(l, Lexeme::In))?;
-    let body = Box::new(parse_expr(input)?);
-    Ok(Expr::Let { var: var.value(), val, body })
+    input.expect(|l| l.eq(&Lexeme::SemiColon))?;
+    Ok(Expr::Let { var: var.value(), val })
 }
 
 fn parse_call_params(input : &mut Input) -> Result<Vec<Expr>, ParseError> {

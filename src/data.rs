@@ -5,7 +5,6 @@ use std::sync::Arc;
 pub enum Lexeme {
     Def,
     Let, 
-    In,
     Symbol(Arc<str>),
     Number(Arc<str>),
     LParen,
@@ -49,6 +48,6 @@ pub enum ExprOrDef {
 pub enum Expr {
     Symbol(Arc<str>),
     Number(Arc<str>),
-    Let { var: Arc<str>, val: Box<Expr>, body: Box<Expr> }, 
+    Let { var: Arc<str>, val: Box<Expr> }, 
     Call { f : Box<Expr>, params : Vec<Expr> },
 }

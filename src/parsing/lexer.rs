@@ -49,7 +49,6 @@ fn symbol(input : &mut Input) -> Result<Lexeme, usize> {
 
     match s.as_str() {
         "def" => Ok(Lexeme::Def),
-        "in" => Ok(Lexeme::In),
         "let" => Ok(Lexeme::Let),
         s => Ok(Lexeme::Symbol(s.into())),
     }

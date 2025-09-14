@@ -1,12 +1,12 @@
 
-use std::sync::Arc;
+use std::rc::Rc;
 
 #[derive(Debug, PartialEq)]
 pub enum Lexeme {
     Def,
     Let, 
-    Symbol(Arc<str>),
-    Number(Arc<str>),
+    Symbol(Rc<str>),
+    Number(Rc<str>),
     LParen,
     RParen,
     LCurl,
@@ -22,10 +22,10 @@ pub enum Lexeme {
 }
 
 impl Lexeme {
-    pub fn value(&self) -> Arc<str> {
+    pub fn value(&self) -> Rc<str> {
         match self {
-            Lexeme::Symbol(x) => Arc::clone(x),
-            Lexeme::Number(x) => Arc::clone(x),
+            Lexeme::Symbol(x) => Rc::clone(x),
+            Lexeme::Number(x) => Rc::clone(x),
             x => panic!("value failure {:?}", x),
         }
     }
@@ -46,12 +46,12 @@ pub enum ExprOrDef {
 
 #[derive(Debug)]
 pub enum Stmt {
-    Let { var: Arc<str>, val: Box<Expr> }, 
+    Let { var: Rc<str>, val: Box<Expr> }, 
 }
 
 #[derive(Debug)]
 pub enum Expr {
-    Symbol(Arc<str>),
-    Number(Arc<str>),
+    Symbol(Rc<str>),
+    Number(Rc<str>),
     Call { f : Box<Expr>, params : Vec<Expr> },
 }

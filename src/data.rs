@@ -40,8 +40,16 @@ pub enum ParseError {
 
 #[derive(Debug)]
 pub enum ExprOrDef {
-    Expr(Expr)
-    // fun def
+    Expr(Expr),
+    Def(Def),
+}
+
+#[derive(Debug)]
+pub struct Def {
+    pub name: Rc<str>,
+    pub params: Vec<Rc<str>>,
+    pub stmts: Vec<Stmt>,
+    pub body: Expr,
 }
 
 #[derive(Debug)]

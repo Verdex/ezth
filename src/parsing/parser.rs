@@ -49,17 +49,41 @@ pub fn parse(input : &str) -> Result<ExprOrDef, ParseError> {
     };
     let mut input = Input::new(input);
 
-    let e = parse_expr(&mut input)?;
 
-    Ok(ExprOrDef::Expr(e))
-}
-
-fn parse_stmt(input : &mut Input) -> Result<Stmt, ParseError> {
-    if input.check(|l| l.eq(&Lexeme::Let))? {
-        parse_let(input)
+    let result = 
+    if input.check(|l| l.eq(&Lexeme::Def))? {
+        ExprOrDef::Def(parse_def(&mut input)?)
     }
     else {
-        panic!("parse expr TODO {:?}", input.peek())
+        ExprOrDef::Expr(parse_expr(&mut input)?)
+    };
+
+    Ok(result)
+}
+
+fn parse_def(input : &mut Input) -> Result<Def, ParseError> {
+    let name = input.expect(|l| matches!(l, Lexeme::Symbol(_)))?.value();
+    input.expect(|l| l.eq(&Lexeme::LParen))?;
+    let params = parse_list(input, |input| input.expect(|l| matches!(l, Lexeme::Symbol(_))))?
+                    .into_iter()
+                    .map(|s| s.value())
+                    .collect::<Vec<_>>();
+    input.expect(|l| l.eq(&Lexeme::LCurl))?;
+    let stmts = parse_stmts(input)?; 
+    let body = parse_expr(input)?;
+    input.expect(|l| l.eq(&Lexeme::RCurl))?;
+    Ok(Def { name, params, stmts, body })
+}
+
+fn parse_stmts(input : &mut Input) -> Result<Vec<Stmt>, ParseError> {
+    let mut ret = vec![];
+    loop {
+        if input.check(|l| l.eq(&Lexeme::Let))? {
+            ret.push(parse_let(input)?);
+        }
+        else {
+            return Ok(ret);
+        }
     }
 }
 
@@ -102,6 +126,7 @@ fn parse_let(input : &mut Input) -> Result<Stmt, ParseError> {
     Ok(Stmt::Let { var: var.value(), val })
 }
 
+// TODO parse list
 fn parse_call_params(input : &mut Input) -> Result<Vec<Expr>, ParseError> {
     let mut ret = vec![];
     if input.check(|l| l.eq(&Lexeme::RParen))? {
@@ -111,6 +136,19 @@ fn parse_call_params(input : &mut Input) -> Result<Vec<Expr>, ParseError> {
     while input.check(|l| l.eq(&Lexeme::RParen))? == false {
         input.expect(|l| l.eq(&Lexeme::Comma))?;
         ret.push(parse_expr(input)?);
+    }
+    Ok(ret)
+}
+
+fn parse_list<T, F : Fn(&mut Input) -> Result<T, ParseError>>(input : &mut Input, f : F) -> Result<Vec<T>, ParseError> {
+    let mut ret = vec![];
+    if input.check(|l| l.eq(&Lexeme::RParen))? {
+        return Ok(vec![]);
+    }
+    ret.push(f(input)?);
+    while input.check(|l| l.eq(&Lexeme::RParen))? == false {
+        input.expect(|l| l.eq(&Lexeme::Comma))?;
+        ret.push(f(input)?);
     }
     Ok(ret)
 }

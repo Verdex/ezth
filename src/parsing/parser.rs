@@ -54,13 +54,19 @@ pub fn parse(input : &str) -> Result<ExprOrDef, ParseError> {
     Ok(ExprOrDef::Expr(e))
 }
 
+fn parse_stmt(input : &mut Input) -> Result<Stmt, ParseError> {
+    if input.check(|l| l.eq(&Lexeme::Let))? {
+        parse_let(input)
+    }
+    else {
+        panic!("parse expr TODO {:?}", input.peek())
+    }
+}
+
 fn parse_expr(input : &mut Input) -> Result<Expr, ParseError> {
     let e = 
     if let Lexeme::Symbol(v) = input.peek()? {
         Expr::Symbol(input.take()?.value())
-    }
-    else if input.check(|l| l.eq(&Lexeme::Let))? {
-        parse_let(input)?
     }
     else if matches!(input.peek()?, Lexeme::Number(_)) {
         Expr::Number(input.take()?.value())
@@ -82,12 +88,12 @@ fn parse_after_expr(input : &mut Input, e : Expr) -> Result<Expr, ParseError> {
     }
 }
 
-fn parse_let(input : &mut Input) -> Result<Expr, ParseError> {
+fn parse_let(input : &mut Input) -> Result<Stmt, ParseError> {
     let var = input.expect(|l| matches!(l, Lexeme::Symbol(_)))?;
     input.expect(|l| matches!(l, Lexeme::Equal))?;
     let val = Box::new(parse_expr(input)?);
     input.expect(|l| l.eq(&Lexeme::SemiColon))?;
-    Ok(Expr::Let { var: var.value(), val })
+    Ok(Stmt::Let { var: var.value(), val })
 }
 
 fn parse_call_params(input : &mut Input) -> Result<Vec<Expr>, ParseError> {

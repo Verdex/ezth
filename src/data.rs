@@ -45,9 +45,13 @@ pub enum ExprOrDef {
 }
 
 #[derive(Debug)]
+pub enum Stmt {
+    Let { var: Arc<str>, val: Box<Expr> }, 
+}
+
+#[derive(Debug)]
 pub enum Expr {
     Symbol(Arc<str>),
     Number(Arc<str>),
-    Let { var: Arc<str>, val: Box<Expr> }, 
     Call { f : Box<Expr>, params : Vec<Expr> },
 }

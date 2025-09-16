@@ -1,6 +1,7 @@
 
 
-use crate::data::*;
+use crate::data::lex::*;
+use crate::data::parse::*;
 use super::parse_input::Input;
 use super::lexer;
 

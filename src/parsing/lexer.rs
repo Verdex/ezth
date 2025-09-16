@@ -1,7 +1,7 @@
 
 use std::str::CharIndices;
 use std::iter::Peekable;
-use crate::data::*;
+use crate::data::lex::*;
 
 
 type Input<'a> = Peekable<CharIndices<'a>>;

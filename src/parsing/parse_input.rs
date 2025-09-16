@@ -1,6 +1,7 @@
 
 use std::iter::Peekable;
-use crate::data::*;
+use crate::data::lex::*;
+use crate::data::parse::*;
 
 pub struct Input {
     ls : Peekable<std::vec::IntoIter<Lexeme>>

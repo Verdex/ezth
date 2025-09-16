@@ -5,7 +5,7 @@ mod compiling;
 
 use std::io::{self, Write};
 
-use crate::data::*;
+use crate::data::parse::*;
 use crate::parsing::parser;
 
 

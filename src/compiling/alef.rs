@@ -6,8 +6,17 @@ use std::rc::Rc;
 use an_a_vm::data::*;
 use crate::data::runtime::*;
 
-pub enum AlefStmt {
+pub enum AlefVal {
+    Data(Data),
+    Var(Rc<str>),
+    FunCall(Rc<str>, Vec<Rc<str>>),
+    LocalOp(Rc<str>, Vec<Rc<str>>),
+}
 
+pub enum AlefStmt {
+    Let { var : Rc<str>, val : AlefVal },
+    Return,
+    ReturnVar(Rc<str>),
 }
 
 pub struct AlefFun {

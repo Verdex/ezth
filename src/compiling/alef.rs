@@ -27,8 +27,9 @@ pub struct AlefFun {
 
 #[derive(Debug)]
 pub enum AlefError {
-    LocalDoesNotExist{ local: Rc<str>, fun: Rc<str> },
-    LocalRedefined{ local: Rc<str>, fun: Rc<str> },
+    LocalDoesNotExist { local: Rc<str>, fun: Rc<str> },
+    LocalRedefined { local: Rc<str>, fun: Rc<str> },
+    FunDoesNotExist { target: Rc<str>, src: Rc<str> },
 }
 
 pub fn compile(input : Vec<AlefFun>, op_map : &HashMap<Rc<str>, usize>) -> Result<Vec<Fun<Data>>, AlefError> {
@@ -54,8 +55,13 @@ fn compile_fun(f : AlefFun, fun_map : &HashMap<Rc<str>, usize>, op_map : &HashMa
                         let local = get_local(&locals, &v, &f.name)?;
                         instrs.push(Op::Dup(local));
                     },
+                    AlefVal::FunCall(fun, ps) => {
+                        let fun = get_fun(fun_map, &fun, &f.name)?;
+                        let params = ps.iter().map(|param| get_local(&locals, &param, &f.name)).collect::<Result<Vec<_>, _>>()?;
+                        instrs.push(Op::Call(fun, params));
+                        instrs.push(Op::PushRet);
+                    }
                     _=> todo!()
-                    //AlefVal::FunCall
                     //AlefVal::LocalOp
                 }
                 if locals.contains_key(&var) {
@@ -77,10 +83,44 @@ pub fn get_local(map : &HashMap<Rc<str>, usize>, local : &Rc<str>, fun_name : &R
     }
 }
 
+pub fn get_fun(map : &HashMap<Rc<str>, usize>, target: &Rc<str>, src: &Rc<str>) -> Result<usize, AlefError> {
+    match map.get(target) {
+        Some(f) => Ok(*f),
+        None => Err(AlefError::FunDoesNotExist{ target: Rc::clone(target), src: Rc::clone(src) })
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
     use an_a_vm::*;
+
+    #[test]
+    fn should_assign_let_from_fun_call() {
+        let fa = AlefFun{
+            name: "fa".into(),
+            params: vec!["a".into()],
+            stmts: vec![
+                AlefStmt::Let { var: "b".into(), val: AlefVal::Var("a".into()) },
+                AlefStmt::ReturnVar("b".into()),
+            ],
+        };
+        let fb = AlefFun{
+            name: "fb".into(),
+            params: vec![],
+            stmts: vec![
+                AlefStmt::Let { var: "a".into(), val: AlefVal::Data(19.0) },
+                AlefStmt::Let { var: "b".into(), val: AlefVal::FunCall("fa".into(), vec!["a".into()]) },
+                AlefStmt::ReturnVar("b".into()),
+            ],
+        };
+        let fs = compile(vec![fa, fb], &HashMap::new()).unwrap();
+        let mut vm : Vm<Data, ()> = Vm::new(fs, vec![]);
+
+        let result = vm.run(1).unwrap().unwrap();
+
+        assert_eq!(result, 19.0);
+    }
 
     #[test]
     fn should_assign_let_from_let_from_value() {

@@ -32,6 +32,20 @@ pub enum AlefError {
     DuplicateFunNames(Vec<Rc<str>>),
 }
 
+impl std::fmt::Display for AlefError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> { 
+        match self {
+            AlefError::LocalDoesNotExist{local, fun} => write!(f, "Local {local} does not exist in {fun}"),
+            AlefError::LocalRedefined{local, fun} => write!(f, "Local {local} redefined in {fun}"),
+            AlefError::FunDoesNotExist{target, src} => write!(f, "Fun {target} does not exist in {src}"),
+            AlefError::OpDoesNotExist{target, src} => write!(f, "Op {target} does not exist in {src}"),
+            AlefError::DuplicateFunNames(dups) => write!(f, "Duplicate fun name(s):\n    {}", dups.join("\n    ")),
+        }
+    }
+}
+
+impl std::error::Error for AlefError { }
+
 pub fn compile(input : Vec<AlefFun>, op_map : &HashMap<Rc<str>, usize>) -> Result<Vec<Fun<Data>>, AlefError> {
     let mut names = input.iter().map(|x| Rc::clone(&x.name)).collect::<Vec<_>>();
     names.sort();

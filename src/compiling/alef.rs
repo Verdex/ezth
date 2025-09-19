@@ -1,6 +1,4 @@
 
-// lets, defs, ops, calls
-
 use std::collections::HashMap;
 use std::rc::Rc;
 use an_a_vm::data::*;
@@ -31,10 +29,18 @@ pub enum AlefError {
     LocalRedefined { local: Rc<str>, fun: Rc<str> },
     FunDoesNotExist { target: Rc<str>, src: Rc<str> },
     OpDoesNotExist { target: Rc<str>, src: Rc<str> },
+    DuplicateFunNames(Vec<Rc<str>>),
 }
 
 pub fn compile(input : Vec<AlefFun>, op_map : &HashMap<Rc<str>, usize>) -> Result<Vec<Fun<Data>>, AlefError> {
-    // TODO check for duplicate func names
+    let mut names = input.iter().map(|x| Rc::clone(&x.name)).collect::<Vec<_>>();
+    names.sort();
+    let dup_funs = names.iter().zip(names.iter().skip(1)).filter(|(a, b)| a == b).map(|(a, _)| Rc::clone(a)).collect::<Vec<_>>();
+
+    if dup_funs.len() != 0 {
+        return Err(AlefError::DuplicateFunNames(dup_funs));
+    }
+
     let map : HashMap<Rc<str>, usize> = input.iter().enumerate().map(|(i, x)| (Rc::clone(&x.name), i)).collect();
     input.into_iter().map(|f| compile_fun(f, &map, op_map)).collect()
 }

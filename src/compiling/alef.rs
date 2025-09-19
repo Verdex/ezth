@@ -30,6 +30,7 @@ pub enum AlefError {
     LocalDoesNotExist { local: Rc<str>, fun: Rc<str> },
     LocalRedefined { local: Rc<str>, fun: Rc<str> },
     FunDoesNotExist { target: Rc<str>, src: Rc<str> },
+    OpDoesNotExist { target: Rc<str>, src: Rc<str> },
 }
 
 pub fn compile(input : Vec<AlefFun>, op_map : &HashMap<Rc<str>, usize>) -> Result<Vec<Fun<Data>>, AlefError> {
@@ -60,9 +61,13 @@ fn compile_fun(f : AlefFun, fun_map : &HashMap<Rc<str>, usize>, op_map : &HashMa
                         let params = ps.iter().map(|param| get_local(&locals, &param, &f.name)).collect::<Result<Vec<_>, _>>()?;
                         instrs.push(Op::Call(fun, params));
                         instrs.push(Op::PushRet);
-                    }
-                    _=> todo!()
-                    //AlefVal::LocalOp
+                    },
+                    AlefVal::LocalOp(op, ps) => {
+                        let fun = get_op(fun_map, &op, &f.name)?;
+                        let params = ps.iter().map(|param| get_local(&locals, &param, &f.name)).collect::<Result<Vec<_>, _>>()?;
+                        instrs.push(Op::Gen(fun, params));
+                        instrs.push(Op::PushRet);
+                    },
                 }
                 if locals.contains_key(&var) {
                     return Err(AlefError::LocalRedefined{ local: Rc::clone(&var), fun: Rc::clone(&f.name) });
@@ -76,17 +81,24 @@ fn compile_fun(f : AlefFun, fun_map : &HashMap<Rc<str>, usize>, op_map : &HashMa
     Ok(Fun { name: f.name, instrs })
 } 
 
-pub fn get_local(map : &HashMap<Rc<str>, usize>, local : &Rc<str>, fun_name : &Rc<str>) -> Result<usize, AlefError> {
+fn get_local(map : &HashMap<Rc<str>, usize>, local : &Rc<str>, fun_name : &Rc<str>) -> Result<usize, AlefError> {
     match map.get(local) {
         Some(local) => Ok(*local),
         None => Err(AlefError::LocalDoesNotExist{ local: Rc::clone(local), fun: Rc::clone(fun_name) })
     }
 }
 
-pub fn get_fun(map : &HashMap<Rc<str>, usize>, target: &Rc<str>, src: &Rc<str>) -> Result<usize, AlefError> {
+fn get_fun(map : &HashMap<Rc<str>, usize>, target: &Rc<str>, src: &Rc<str>) -> Result<usize, AlefError> {
     match map.get(target) {
         Some(f) => Ok(*f),
         None => Err(AlefError::FunDoesNotExist{ target: Rc::clone(target), src: Rc::clone(src) })
+    }
+}
+
+fn get_op(map : &HashMap<Rc<str>, usize>, target: &Rc<str>, src: &Rc<str>) -> Result<usize, AlefError> {
+    match map.get(target) {
+        Some(f) => Ok(*f),
+        None => Err(AlefError::OpDoesNotExist{ target: Rc::clone(target), src: Rc::clone(src) })
     }
 }
 

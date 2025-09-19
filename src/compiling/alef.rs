@@ -63,7 +63,7 @@ fn compile_fun(f : AlefFun, fun_map : &HashMap<Rc<str>, usize>, op_map : &HashMa
                         instrs.push(Op::PushRet);
                     },
                     AlefVal::LocalOp(op, ps) => {
-                        let fun = get_op(fun_map, &op, &f.name)?;
+                        let fun = get_op(op_map, &op, &f.name)?;
                         let params = ps.iter().map(|param| get_local(&locals, &param, &f.name)).collect::<Result<Vec<_>, _>>()?;
                         instrs.push(Op::Gen(fun, params));
                         instrs.push(Op::PushRet);
@@ -151,5 +151,29 @@ mod test {
         let result = vm.run(0).unwrap().unwrap();
 
         assert_eq!(result, 19.0);
+    }
+
+    #[test]
+    fn should_assign_let_from_op() {
+        let f = AlefFun{
+            name: "fun".into(),
+            params: vec![],
+            stmts: vec![
+                AlefStmt::Let { var: "a".into(), val: AlefVal::Data(19.0) },
+                AlefStmt::Let { var: "b".into(), val: AlefVal::Data(2.0) },
+                AlefStmt::Let { var: "c".into(), val: AlefVal::LocalOp("add".into(), vec!["a".into(), "b".into()]) },
+                AlefStmt::ReturnVar("c".into()),
+            ],
+        };
+        let ops : Vec<GenOp<Data, ()>> = vec![
+            GenOp::Local{name: "add".into(), op: |locals, params| { Ok(Some(locals[params[0]] + locals[params[1]])) }}
+        ];
+        let op_map : HashMap<Rc<str>, usize> = HashMap::from([("add".into(), 0)]);
+        let fs = compile(vec![f], &op_map).unwrap();
+        let mut vm : Vm<Data, ()> = Vm::new(fs, ops);
+
+        let result = vm.run(0).unwrap().unwrap();
+
+        assert_eq!(result, 21.0);
     }
 }

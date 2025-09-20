@@ -1,6 +1,5 @@
 
 use std::rc::Rc;
-use std::collections::HashMap;
 use crate::data::runtime::*;
 use super::alef::{AlefFun, AlefStmt, AlefVal};
 
@@ -19,7 +18,8 @@ pub enum BetStmt {
 pub enum BetExpr {
     Data(Data),
     Var(Rc<str>),
-    Call(Rc<str>, Vec<BetExpr>),
+    FunCall(Rc<str>, Vec<BetExpr>),
+    LocalOp(Rc<str>, Vec<BetExpr>),
 }
 
 pub enum BetError {
@@ -27,22 +27,36 @@ pub enum BetError {
 }
 
 // TODO unwrap nested fun calls into lets
-// TODO split calls into fun calls and op calls
-pub fn compile(input : Vec<BetFun>, op_map : &HashMap<Rc<str>, usize>) -> Result<Vec<AlefFun>, BetError> {
-    input.into_iter().map(|f| compile_fun(f, op_map)).collect()
+pub fn compile(input : Vec<BetFun>) -> Result<Vec<AlefFun>, BetError> {
+    input.into_iter().map(compile_fun).collect()
 } 
 
-fn compile_fun(f : BetFun, op_map : &HashMap<Rc<str>, usize>) -> Result<AlefFun, BetError> {
+fn compile_fun(f : BetFun) -> Result<AlefFun, BetError> {
     let mut i : usize = 0;
+
 
     todo!()
 }
 
-fn compile_expr(i : &mut usize, e : BetExpr, op_map : &HashMap<Rc<str>, usize>) -> Result<(Vec<AlefStmt>, AlefVal), BetError> { 
+fn compile_expr(i : &mut usize, e : BetExpr) -> Result<(Vec<AlefStmt>, Rc<str>), BetError> { 
+    let var = gen_sym(i);
     match e {
-        BetExpr::Data(d) => Ok((vec![], AlefVal::Data(d))),
-        BetExpr::Var(v) => todo!(),
-        BetExpr::Call(n, ps) => todo!(),
+        BetExpr::Data(d) => Ok((vec![AlefStmt::Let { var: Rc::clone(&var), val: AlefVal::Data(d) }], var)),
+        BetExpr::Var(v) => Ok((vec![], v)),
+        BetExpr::FunCall(n, ps) => {
+            // TODO is `i` actually being processed correctly
+            let x = ps.into_iter().map(|p| compile_expr(i, p)).collect::<Result<Vec<_>, _>>()?;
+            let (mut lets, ps) = x.into_iter().fold((vec![], vec![]), |(mut all_lets, mut ps), (mut lets, p)| {
+                all_lets.append(&mut lets);
+                ps.push(p);
+                (all_lets, ps)
+            });
+
+            lets.push(AlefStmt::Let { var: Rc::clone(&var), val: AlefVal::FunCall(n, ps)});
+
+            Ok((lets, var))
+        },
+        _ => todo!(),
     }
 }
 

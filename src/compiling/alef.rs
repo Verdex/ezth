@@ -18,9 +18,9 @@ pub enum AlefStmt {
 }
 
 pub struct AlefFun {
-    name : Rc<str>,
-    params : Vec<Rc<str>>,
-    stmts : Vec<AlefStmt>,
+    pub name : Rc<str>,
+    pub params : Vec<Rc<str>>,
+    pub stmts : Vec<AlefStmt>,
 }
 
 #[derive(Debug)]

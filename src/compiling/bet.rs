@@ -22,9 +22,20 @@ pub enum BetExpr {
     LocalOp(Rc<str>, Vec<BetExpr>),
 }
 
+#[derive(Debug)]
 pub enum BetError {
 
 }
+
+impl std::fmt::Display for BetError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> { 
+        match self {
+            _ => unreachable!(),
+        }
+    }
+}
+
+impl std::error::Error for BetError { }
 
 // TODO unwrap nested fun calls into lets
 pub fn compile(input : Vec<BetFun>) -> Result<Vec<AlefFun>, BetError> {

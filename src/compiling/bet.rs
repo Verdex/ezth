@@ -51,7 +51,7 @@ fn compile_fun(f : BetFun) -> Result<AlefFun, BetError> {
     let (mut ret_lets, ret_var) = compile_expr(&mut i, f.body)?;
 
     stmts.append(&mut ret_lets);
-    stmts.push(AlefStmt::Let { var: gen_sym(&mut i), val: AlefVal::Var(ret_var) });
+    stmts.push(AlefStmt::ReturnVar(ret_var));
 
     Ok(AlefFun { name: f.name, params: f.params, stmts })
 }

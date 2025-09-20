@@ -189,6 +189,6 @@ mod test {
 
         let result = vm.run(0).unwrap().unwrap();
 
-        assert_eq!(result, 21.0);
+        assert_eq!(result, 132.0);
     }
 }

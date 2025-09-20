@@ -89,3 +89,73 @@ fn compile_expr(i : &mut usize, e : BetExpr) -> Result<(Vec<AlefStmt>, Rc<str>),
 }
 
 fn gen_sym(i : &mut usize) -> Rc<str> { *i += 1; format!("temp_{i}").into() }
+
+#[cfg(test)]
+mod test {
+    use an_a_vm::*;
+    use an_a_vm::data::*;
+    use std::collections::HashMap;
+    use super::*;
+    use super::super::alef;
+
+    #[test]
+    fn should_denest() {
+        // op with op inside
+        // op with call inside
+        // call with call inside
+        // call with op inside
+        // inside inside inside inside
+        // data param
+        // var param
+        // return with all that
+
+        /*
+            let x = 2
+            let y = x
+            let z = 3
+            let w = other(x, add(y, z))
+            let a = add(other(add(y, z), other(x, x)), add(w, y))
+
+            return add(a, add(a, add(a, a)))
+
+        */
+
+        let other = BetFun { 
+            name: "other".into(),
+            params: vec!["a".into(), "b".into()],
+            stmts: vec![BetStmt::Let{var: "z".into(), val: BetExpr::LocalOp("add".into(), vec![BetExpr::Var("a".into()), BetExpr::Var("b".into())])}],
+            body: BetExpr::LocalOp("add".into(), vec![BetExpr::Var("z".into()), BetExpr::Data(5.0)]),
+        };
+
+        let main = BetFun {
+            name: "main".into(),
+            params: vec![],
+            stmts: vec![],
+            body: BetExpr::FunCall("other".into(), vec![BetExpr::Data(1.0), BetExpr::Data(2.0)]),
+        };
+
+        /*let main = BetFun {
+            name: "main".into(),
+            params: vec![],
+            stmts: vec![
+                AlefStmt::Let { var: "a".into(), val: AlefVal::Data(19.0) },
+                AlefStmt::Let { var: "b".into(), val: AlefVal::Data(2.0) },
+                AlefStmt::Let { var: "c".into(), val: AlefVal::LocalOp("add".into(), vec!["a".into(), "b".into()]) },
+                AlefStmt::ReturnVar("c".into()),
+            ],
+        };*/
+        let ops : Vec<GenOp<Data, ()>> = vec![
+            GenOp::Local{name: "add".into(), op: |locals, params| { Ok(Some(locals[params[0]] + locals[params[1]])) }}
+        ];
+        let op_map : HashMap<Rc<str>, usize> = HashMap::from([("add".into(), 0)]);
+
+        let alef_fs = compile(vec![other]).unwrap();
+
+        let fs = alef::compile(alef_fs, &op_map).unwrap();
+        let mut vm : Vm<Data, ()> = Vm::new(fs, ops);
+
+        let result = vm.run(0).unwrap().unwrap();
+
+        assert_eq!(result, 21.0);
+    }
+}

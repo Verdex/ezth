@@ -34,8 +34,25 @@ pub fn compile(input : Vec<BetFun>) -> Result<Vec<AlefFun>, BetError> {
 fn compile_fun(f : BetFun) -> Result<AlefFun, BetError> {
     let mut i : usize = 0;
 
+    let stmts = f.stmts.into_iter().map(|s| compile_stmt(&mut i, s)).collect::<Result<Vec<_>, _>>()?;
+    let mut stmts = stmts.into_iter().flatten().collect::<Vec<_>>();
 
-    todo!()
+    let (mut ret_lets, ret_var) = compile_expr(&mut i, f.body)?;
+
+    stmts.append(&mut ret_lets);
+    stmts.push(AlefStmt::Let { var: gen_sym(&mut i), val: AlefVal::Var(ret_var) });
+
+    Ok(AlefFun { name: f.name, params: f.params, stmts })
+}
+
+fn compile_stmt(i : &mut usize, s : BetStmt) -> Result<Vec<AlefStmt>, BetError> {
+    match s { 
+        BetStmt::Let { var, val } => {
+            let (mut lets, v) = compile_expr(i, val)?;
+            lets.push(AlefStmt::Let { var, val: AlefVal::Var(v) });
+            Ok(lets)
+        },
+    }
 }
 
 fn compile_expr(i : &mut usize, e : BetExpr) -> Result<(Vec<AlefStmt>, Rc<str>), BetError> { 

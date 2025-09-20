@@ -112,14 +112,6 @@ mod test {
 
     #[test]
     fn should_denest() {
-        // op with op inside
-        // op with call inside
-        // call with call inside
-        // call with op inside
-        // inside inside inside inside
-        // data param
-        // var param
-        // return with all that
 
         /*
             let x = 2
@@ -142,26 +134,55 @@ mod test {
         let main = BetFun {
             name: "main".into(),
             params: vec![],
-            stmts: vec![],
-            body: BetExpr::FunCall("other".into(), vec![BetExpr::Data(1.0), BetExpr::Data(2.0)]),
+            stmts: vec![
+                BetStmt::Let { var: "x".into(), val: BetExpr::Data(2.0) },
+                BetStmt::Let { var: "y".into(), val: BetExpr::Var("x".into()) },
+                BetStmt::Let { var: "z".into(), val: BetExpr::Data(3.0) },
+                BetStmt::Let { 
+                    var: "w".into(), 
+                    val: BetExpr::FunCall("other".into(), vec![
+                        BetExpr::Var("x".into()),
+                        BetExpr::LocalOp("add".into(), vec![BetExpr::Var("y".into()), BetExpr::Var("z".into())])
+                    ])
+                },
+                BetStmt::Let { 
+                    var: "a".into(), 
+                    val: BetExpr::LocalOp("add".into(), vec![
+                        BetExpr::FunCall("other".into(), vec![
+                            BetExpr::LocalOp("add".into(), vec![
+                                BetExpr::Var("y".into()),
+                                BetExpr::Var("z".into())
+                            ]),
+                            BetExpr::FunCall("other".into(), vec![
+                                BetExpr::Var("x".into()),
+                                BetExpr::Var("x".into())
+                            ])
+                        ]),
+                        BetExpr::LocalOp("add".into(), vec![
+                            BetExpr::Var("w".into()),
+                            BetExpr::Var("x".into())
+                        ])
+                    ])
+                },
+            ],
+            body: BetExpr::LocalOp("add".into(), vec![
+                BetExpr::Var("a".into()),
+                BetExpr::LocalOp("add".into(), vec![
+                    BetExpr::Var("a".into()),
+                    BetExpr::LocalOp("add".into(), vec![
+                        BetExpr::Var("a".into()),
+                        BetExpr::Var("a".into())
+                    ])
+                ])
+            ]) 
         };
 
-        /*let main = BetFun {
-            name: "main".into(),
-            params: vec![],
-            stmts: vec![
-                AlefStmt::Let { var: "a".into(), val: AlefVal::Data(19.0) },
-                AlefStmt::Let { var: "b".into(), val: AlefVal::Data(2.0) },
-                AlefStmt::Let { var: "c".into(), val: AlefVal::LocalOp("add".into(), vec!["a".into(), "b".into()]) },
-                AlefStmt::ReturnVar("c".into()),
-            ],
-        };*/
         let ops : Vec<GenOp<Data, ()>> = vec![
             GenOp::Local{name: "add".into(), op: |locals, params| { Ok(Some(locals[params[0]] + locals[params[1]])) }}
         ];
         let op_map : HashMap<Rc<str>, usize> = HashMap::from([("add".into(), 0)]);
 
-        let alef_fs = compile(vec![other]).unwrap();
+        let alef_fs = compile(vec![main, other]).unwrap();
 
         let fs = alef::compile(alef_fs, &op_map).unwrap();
         let mut vm : Vm<Data, ()> = Vm::new(fs, ops);

@@ -37,7 +37,6 @@ impl std::fmt::Display for BetError {
 
 impl std::error::Error for BetError { }
 
-// TODO unwrap nested fun calls into lets
 pub fn compile(input : Vec<BetFun>) -> Result<Vec<AlefFun>, BetError> {
     input.into_iter().map(compile_fun).collect()
 } 

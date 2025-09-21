@@ -1,6 +1,7 @@
 pub mod compiler;
 mod alef;
 mod bet;
+mod gimel;
 
 /*
 alef

@@ -8,7 +8,7 @@ pub enum AlefVal {
     Data(Data),
     Var(Rc<str>),
     FunCall(Rc<str>, Vec<Rc<str>>),
-    LocalOp(Rc<str>, Vec<Rc<str>>),
+    LocalOp(usize, Vec<Rc<str>>),
 }
 
 pub enum AlefStmt {
@@ -46,7 +46,7 @@ impl std::fmt::Display for AlefError {
 
 impl std::error::Error for AlefError { }
 
-pub fn compile(input : Vec<AlefFun>, op_map : &HashMap<Rc<str>, usize>) -> Result<Vec<Fun<Data>>, AlefError> {
+pub fn compile(input : Vec<AlefFun>) -> Result<Vec<Fun<Data>>, AlefError> {
     let mut names = input.iter().map(|x| Rc::clone(&x.name)).collect::<Vec<_>>();
     names.sort();
     let dup_funs = names.iter().zip(names.iter().skip(1)).filter(|(a, b)| a == b).map(|(a, _)| Rc::clone(a)).collect::<Vec<_>>();
@@ -56,10 +56,10 @@ pub fn compile(input : Vec<AlefFun>, op_map : &HashMap<Rc<str>, usize>) -> Resul
     }
 
     let map : HashMap<Rc<str>, usize> = input.iter().enumerate().map(|(i, x)| (Rc::clone(&x.name), i)).collect();
-    input.into_iter().map(|f| compile_fun(f, &map, op_map)).collect()
+    input.into_iter().map(|f| compile_fun(f, &map)).collect()
 }
 
-fn compile_fun(f : AlefFun, fun_map : &HashMap<Rc<str>, usize>, op_map : &HashMap<Rc<str>, usize>) -> Result<Fun<Data>, AlefError> {
+fn compile_fun(f : AlefFun, fun_map : &HashMap<Rc<str>, usize>) -> Result<Fun<Data>, AlefError> {
     let mut locals : HashMap<Rc<str>, usize> = f.params.into_iter().enumerate().map(|(i, x)| (Rc::clone(&x), i)).collect();
     let mut instrs = vec![];
     for stmt in f.stmts {
@@ -83,9 +83,8 @@ fn compile_fun(f : AlefFun, fun_map : &HashMap<Rc<str>, usize>, op_map : &HashMa
                         instrs.push(Op::PushRet);
                     },
                     AlefVal::LocalOp(op, ps) => {
-                        let fun = get_op(op_map, &op, &f.name)?;
                         let params = ps.iter().map(|param| get_local(&locals, &param, &f.name)).collect::<Result<Vec<_>, _>>()?;
-                        instrs.push(Op::Gen(fun, params));
+                        instrs.push(Op::Gen(op, params));
                         instrs.push(Op::PushRet);
                     },
                 }
@@ -112,13 +111,6 @@ fn get_fun(map : &HashMap<Rc<str>, usize>, target: &Rc<str>, src: &Rc<str>) -> R
     match map.get(target) {
         Some(f) => Ok(*f),
         None => Err(AlefError::FunDoesNotExist{ target: Rc::clone(target), src: Rc::clone(src) })
-    }
-}
-
-fn get_op(map : &HashMap<Rc<str>, usize>, target: &Rc<str>, src: &Rc<str>) -> Result<usize, AlefError> {
-    match map.get(target) {
-        Some(f) => Ok(*f),
-        None => Err(AlefError::OpDoesNotExist{ target: Rc::clone(target), src: Rc::clone(src) })
     }
 }
 

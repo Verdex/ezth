@@ -46,6 +46,20 @@ fn compile_fun(input : GimelFun, op_map : &HashMap<Rc<str>, usize>)  -> Result<A
 }
 
 fn compile_stmt(input : GimelStmt, op_map : &HashMap<Rc<str>, usize>) -> Result<AlefStmt, GimelError> {
-    todo!()
+    match input {
+        GimelStmt::Let { var, val } => Ok(AlefStmt::Let { var, val: compile_val(val, op_map)? }),
+        GimelStmt::ReturnVar(v) => Ok(AlefStmt::ReturnVar(v)),
+    }
+}
 
+fn compile_val(input : GimelVal, op_map : &HashMap<Rc<str>, usize>) -> Result<AlefVal, GimelError> {
+    match input {
+        GimelVal::Data(d) => Ok(AlefVal::Data(d)),
+        GimelVal::Var(v) => Ok(AlefVal::Var(v)),
+        GimelVal::Call(n, ps) if op_map.contains_key(&n) => {
+            let index = op_map.get(&n).unwrap();
+            Ok(AlefVal::LocalOp(*index, ps))
+        },
+        GimelVal::Call(n, ps) => Ok(AlefVal::FunCall(n, ps)),
+    }
 }

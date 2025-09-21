@@ -28,7 +28,6 @@ pub enum AlefError {
     LocalDoesNotExist { local: Rc<str>, fun: Rc<str> },
     LocalRedefined { local: Rc<str>, fun: Rc<str> },
     FunDoesNotExist { target: Rc<str>, src: Rc<str> },
-    OpDoesNotExist { target: Rc<str>, src: Rc<str> },
     DuplicateFunNames(Vec<Rc<str>>),
 }
 
@@ -38,7 +37,6 @@ impl std::fmt::Display for AlefError {
             AlefError::LocalDoesNotExist{local, fun} => write!(f, "Local {local} does not exist in {fun}"),
             AlefError::LocalRedefined{local, fun} => write!(f, "Local {local} redefined in {fun}"),
             AlefError::FunDoesNotExist{target, src} => write!(f, "Fun {target} does not exist in {src}"),
-            AlefError::OpDoesNotExist{target, src} => write!(f, "Op {target} does not exist in {src}"),
             AlefError::DuplicateFunNames(dups) => write!(f, "Duplicate fun name(s):\n    {}", dups.join("\n    ")),
         }
     }
@@ -138,7 +136,7 @@ mod test {
                 AlefStmt::ReturnVar("b".into()),
             ],
         };
-        let fs = compile(vec![fa, fb], &HashMap::new()).unwrap();
+        let fs = compile(vec![fa, fb]).unwrap();
         let mut vm : Vm<Data, ()> = Vm::new(fs, vec![]);
 
         let result = vm.run(1).unwrap().unwrap();
@@ -157,7 +155,7 @@ mod test {
                 AlefStmt::ReturnVar("b".into()),
             ],
         };
-        let fs = compile(vec![f], &HashMap::new()).unwrap();
+        let fs = compile(vec![f]).unwrap();
         let mut vm : Vm<Data, ()> = Vm::new(fs, vec![]);
 
         let result = vm.run(0).unwrap().unwrap();
@@ -173,15 +171,14 @@ mod test {
             stmts: vec![
                 AlefStmt::Let { var: "a".into(), val: AlefVal::Data(19.0) },
                 AlefStmt::Let { var: "b".into(), val: AlefVal::Data(2.0) },
-                AlefStmt::Let { var: "c".into(), val: AlefVal::LocalOp("add".into(), vec!["a".into(), "b".into()]) },
+                AlefStmt::Let { var: "c".into(), val: AlefVal::LocalOp(0, vec!["a".into(), "b".into()]) },
                 AlefStmt::ReturnVar("c".into()),
             ],
         };
         let ops : Vec<GenOp<Data, ()>> = vec![
             GenOp::Local{name: "add".into(), op: |locals, params| { Ok(Some(locals[params[0]] + locals[params[1]])) }}
         ];
-        let op_map : HashMap<Rc<str>, usize> = HashMap::from([("add".into(), 0)]);
-        let fs = compile(vec![f], &op_map).unwrap();
+        let fs = compile(vec![f]).unwrap();
         let mut vm : Vm<Data, ()> = Vm::new(fs, ops);
 
         let result = vm.run(0).unwrap().unwrap();

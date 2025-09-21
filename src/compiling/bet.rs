@@ -113,8 +113,8 @@ mod test {
         let other = BetFun { 
             name: "other".into(),
             params: vec!["a".into(), "b".into()],
-            stmts: vec![BetStmt::Let{var: "z".into(), val: BetExpr::LocalOp("add".into(), vec![BetExpr::Var("a".into()), BetExpr::Var("b".into())])}],
-            body: BetExpr::LocalOp("add".into(), vec![BetExpr::Var("z".into()), BetExpr::Data(5.0)]),
+            stmts: vec![BetStmt::Let{var: "z".into(), val: BetExpr::Call("add".into(), vec![BetExpr::Var("a".into()), BetExpr::Var("b".into())])}],
+            body: BetExpr::Call("add".into(), vec![BetExpr::Var("z".into()), BetExpr::Data(5.0)]),
         };
 
         let main = BetFun {
@@ -126,36 +126,36 @@ mod test {
                 BetStmt::Let { var: "z".into(), val: BetExpr::Data(3.0) },
                 BetStmt::Let { 
                     var: "w".into(), 
-                    val: BetExpr::FunCall("other".into(), vec![
+                    val: BetExpr::Call("other".into(), vec![
                         BetExpr::Var("x".into()),
-                        BetExpr::LocalOp("add".into(), vec![BetExpr::Var("y".into()), BetExpr::Var("z".into())])
+                        BetExpr::Call("add".into(), vec![BetExpr::Var("y".into()), BetExpr::Var("z".into())])
                     ])
                 },
                 BetStmt::Let { 
                     var: "a".into(), 
-                    val: BetExpr::LocalOp("add".into(), vec![
-                        BetExpr::FunCall("other".into(), vec![
-                            BetExpr::LocalOp("add".into(), vec![
+                    val: BetExpr::Call("add".into(), vec![
+                        BetExpr::Call("other".into(), vec![
+                            BetExpr::Call("add".into(), vec![
                                 BetExpr::Var("y".into()),
                                 BetExpr::Var("z".into())
                             ]),
-                            BetExpr::FunCall("other".into(), vec![
+                            BetExpr::Call("other".into(), vec![
                                 BetExpr::Var("x".into()),
                                 BetExpr::Var("x".into())
                             ])
                         ]),
-                        BetExpr::LocalOp("add".into(), vec![
+                        BetExpr::Call("add".into(), vec![
                             BetExpr::Var("w".into()),
                             BetExpr::Var("x".into())
                         ])
                     ])
                 },
             ],
-            body: BetExpr::LocalOp("add".into(), vec![
+            body: BetExpr::Call("add".into(), vec![
                 BetExpr::Var("a".into()),
-                BetExpr::LocalOp("add".into(), vec![
+                BetExpr::Call("add".into(), vec![
                     BetExpr::Var("a".into()),
-                    BetExpr::LocalOp("add".into(), vec![
+                    BetExpr::Call("add".into(), vec![
                         BetExpr::Var("a".into()),
                         BetExpr::Var("a".into())
                     ])
@@ -168,9 +168,9 @@ mod test {
         ];
         let op_map : HashMap<Rc<str>, usize> = HashMap::from([("add".into(), 0)]);
 
-        let alef_fs = compile(vec![main, other]).unwrap();
-
-        let fs = alef::compile(alef_fs, &op_map).unwrap();
+        let gimel_fs = compile(vec![main, other]).unwrap();
+        let alef_fs = gimel::compile(gimel_fs, &op_map).unwrap();
+        let fs = alef::compile(alef_fs).unwrap();
         let mut vm : Vm<Data, ()> = Vm::new(fs, ops);
 
         let result = vm.run(0).unwrap().unwrap();

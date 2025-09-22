@@ -70,7 +70,6 @@ fn compile_expr(i : &mut usize, e : BetExpr) -> Result<(Vec<GimelStmt>, Rc<str>)
         BetExpr::Data(d) => Ok((vec![GimelStmt::Let { var: Rc::clone(&var), val: GimelVal::Data(d) }], var)),
         BetExpr::Var(v) => Ok((vec![], v)),
         BetExpr::Call(n, ps) => {
-            // TODO is `i` actually being processed correctly
             let x = ps.into_iter().map(|p| compile_expr(i, p)).collect::<Result<Vec<_>, _>>()?;
             let (mut lets, ps) = x.into_iter().fold((vec![], vec![]), |(mut all_lets, mut ps), (mut lets, p)| {
                 all_lets.append(&mut lets);

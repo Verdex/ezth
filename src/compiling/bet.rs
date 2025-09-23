@@ -5,10 +5,10 @@ use super::gimel::{GimelFun, GimelStmt, GimelVal};
 
 
 pub struct BetFun {
-    name : Rc<str>,
-    params : Vec<Rc<str>>,
-    stmts : Vec<BetStmt>,
-    body : BetExpr,
+    pub name : Rc<str>,
+    pub params : Vec<Rc<str>>,
+    pub stmts : Vec<BetStmt>,
+    pub body : BetExpr,
 }
 
 pub enum BetStmt {

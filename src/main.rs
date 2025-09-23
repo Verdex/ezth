@@ -62,9 +62,23 @@ fn main() {
                 defs.push(d); 
             },
             ExprOrDef::Expr(e) => { 
+                let mut defs = defs.clone();
                 let ops = ops::op_list();
                 let op_map : HashMap<Rc<str>, usize> = ops.iter().enumerate().map(|(i, x)| (name(x), i)).collect();
-                let mut vm = Vm::new(vec![], ops);
+
+                defs.insert(0, Def { name: "main".into(), params: vec![], stmts: vec![], body: e});
+
+                match compiler::compile(defs, &op_map) {
+                    Ok(fs) => {
+                        let mut vm = Vm::new(fs, ops);
+
+                        let output = vm.run(0).unwrap().unwrap();
+                        println!("{}", output);
+
+                    },
+                    Err(e) => { println!("{}", e); },
+                }
+
             },
         }
     }

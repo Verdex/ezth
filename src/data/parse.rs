@@ -8,13 +8,13 @@ pub enum ParseError {
     Fatal,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum ExprOrDef {
     Expr(Expr),
     Def(Def),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Def {
     pub name: Rc<str>,
     pub params: Vec<Rc<str>>,
@@ -22,12 +22,12 @@ pub struct Def {
     pub body: Expr,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Stmt {
     Let { var: Rc<str>, val: Box<Expr> }, 
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Expr {
     Symbol(Rc<str>),
     Number(Rc<str>),

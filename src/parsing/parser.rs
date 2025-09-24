@@ -129,7 +129,6 @@ fn parse_let(input : &mut Input) -> Result<Stmt, ParseError> {
 
 fn parse_call_params(input : &mut Input) -> Result<Vec<Expr>, ParseError> {
     parse_list(input, parse_expr)
-
 }
 
 fn parse_list<T, F : Fn(&mut Input) -> Result<T, ParseError>>(input : &mut Input, f : F) -> Result<Vec<T>, ParseError> {

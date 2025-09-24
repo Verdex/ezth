@@ -97,6 +97,9 @@ fn parse_expr(input : &mut Input) -> Result<Expr, ParseError> {
     else if matches!(input.peek()?, Lexeme::Number(_)) {
         Expr::Number(input.take()?.value())
     }
+    else if input.check(|x| x.eq(&Lexeme::Colon))? {
+        parse_data(input)?
+    }
     else {
         panic!("parse expr TODO {:?}", input.peek())
     };
@@ -130,6 +133,17 @@ fn parse_let(input : &mut Input) -> Result<Stmt, ParseError> {
 
 fn parse_call_params(input : &mut Input) -> Result<Vec<Expr>, ParseError> {
     parse_list(input, parse_expr)
+}
+
+fn parse_data(input : &mut Input) -> Result<Expr, ParseError> {
+    let name = input.expect(|l| matches!(l, Lexeme::Symbol(_)))?.value();
+    if input.check(|l| l.eq(&Lexeme::LParen))? {
+        let params = parse_list(input, parse_expr)?;
+        Ok(Expr::Data(name, params))
+    }
+    else {
+        Ok(Expr::Data(name, vec![]))
+    }
 }
 
 fn parse_list<T, F : Fn(&mut Input) -> Result<T, ParseError>>(input : &mut Input, f : F) -> Result<Vec<T>, ParseError> {

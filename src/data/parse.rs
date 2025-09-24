@@ -31,5 +31,6 @@ pub enum Stmt {
 pub enum Expr {
     Symbol(Rc<str>),
     Number(Rc<str>),
+    Data(Rc<str>, Vec<Expr>),
     Call { f : Box<Expr>, params : Vec<Expr> },
 }

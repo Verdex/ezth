@@ -39,6 +39,7 @@ use super::lexer;
     IndexPattern
     $0 (or something)
 
+    : for data
 
 */
 

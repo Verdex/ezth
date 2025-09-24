@@ -19,6 +19,7 @@ pub enum Lexeme {
     DRArrow,
     Equal,
     SemiColon,
+    Colon,
 }
 
 impl Lexeme {

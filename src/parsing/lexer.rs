@@ -82,6 +82,7 @@ fn punct(input : &mut Input) -> Result<Vec<Lexeme>, usize> {
             ',' =>{ ret.push(Lexeme::Comma); },
             '|' => { ret.push(Lexeme::OrBar); },
             ';' => { ret.push(Lexeme::SemiColon); },
+            ':' => { ret.push(Lexeme::Colon); },
             _ => unreachable!(),
         }
         input.next().unwrap();
@@ -101,7 +102,8 @@ fn punct_char(input : char) -> bool {
     input == '|' ||
     input == '=' ||
     input == '>' ||
-    input == ';'
+    input == ';' ||
+    input == ':'
 }
 
 // Note:  Only call this function when you know the first char is what you want

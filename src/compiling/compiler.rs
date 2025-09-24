@@ -43,5 +43,6 @@ fn convert_expr(input : Expr) -> BetExpr {
                 panic!("fun expr currently not supported")
             }
         },
+        Expr::Data(_, _) => todo!(),
     }
 }

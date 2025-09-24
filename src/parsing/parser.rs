@@ -127,18 +127,9 @@ fn parse_let(input : &mut Input) -> Result<Stmt, ParseError> {
     Ok(Stmt::Let { var: var.value(), val })
 }
 
-// TODO parse list
 fn parse_call_params(input : &mut Input) -> Result<Vec<Expr>, ParseError> {
-    let mut ret = vec![];
-    if input.check(|l| l.eq(&Lexeme::RParen))? {
-        return Ok(vec![]);
-    }
-    ret.push(parse_expr(input)?);
-    while input.check(|l| l.eq(&Lexeme::RParen))? == false {
-        input.expect(|l| l.eq(&Lexeme::Comma))?;
-        ret.push(parse_expr(input)?);
-    }
-    Ok(ret)
+    parse_list(input, parse_expr)
+
 }
 
 fn parse_list<T, F : Fn(&mut Input) -> Result<T, ParseError>>(input : &mut Input, f : F) -> Result<Vec<T>, ParseError> {

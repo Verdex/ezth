@@ -131,17 +131,17 @@ mod test {
             name: "fb".into(),
             params: vec![],
             stmts: vec![
-                AlefStmt::Let { var: "a".into(), val: AlefVal::Data(19.0) },
+                AlefStmt::Let { var: "a".into(), val: AlefVal::Data(Local::Number(19.0)) },
                 AlefStmt::Let { var: "b".into(), val: AlefVal::FunCall("fa".into(), vec!["a".into()]) },
                 AlefStmt::ReturnVar("b".into()),
             ],
         };
         let fs = compile(vec![fa, fb]).unwrap();
-        let mut vm : Vm<Data, ()> = Vm::new(fs, vec![]);
+        let mut vm : Vm<Local, ()> = Vm::new(fs, vec![]);
 
         let result = vm.run(1).unwrap().unwrap();
 
-        assert_eq!(result, 19.0);
+        assert!(matches!(result, Local::Number(19.0)));
     }
 
     #[test]
@@ -150,17 +150,17 @@ mod test {
             name: "fun".into(),
             params: vec![],
             stmts: vec![
-                AlefStmt::Let { var: "a".into(), val: AlefVal::Data(19.0) },
+                AlefStmt::Let { var: "a".into(), val: AlefVal::Data(Local::Number(19.0)) },
                 AlefStmt::Let { var: "b".into(), val: AlefVal::Var("a".into()) },
                 AlefStmt::ReturnVar("b".into()),
             ],
         };
         let fs = compile(vec![f]).unwrap();
-        let mut vm : Vm<Data, ()> = Vm::new(fs, vec![]);
+        let mut vm : Vm<Local, ()> = Vm::new(fs, vec![]);
 
         let result = vm.run(0).unwrap().unwrap();
 
-        assert_eq!(result, 19.0);
+        assert!(matches!(result, Local::Number(19.0)));
     }
 
     #[test]
@@ -169,20 +169,31 @@ mod test {
             name: "fun".into(),
             params: vec![],
             stmts: vec![
-                AlefStmt::Let { var: "a".into(), val: AlefVal::Data(19.0) },
-                AlefStmt::Let { var: "b".into(), val: AlefVal::Data(2.0) },
+                AlefStmt::Let { var: "a".into(), val: AlefVal::Data(Local::Number(19.0)) },
+                AlefStmt::Let { var: "b".into(), val: AlefVal::Data(Local::Number(2.0)) },
                 AlefStmt::Let { var: "c".into(), val: AlefVal::LocalOp(0, vec!["a".into(), "b".into()]) },
                 AlefStmt::ReturnVar("c".into()),
             ],
         };
-        let ops : Vec<GenOp<Data, ()>> = vec![
-            GenOp::Local{name: "add".into(), op: |locals, params| { Ok(Some(locals[params[0]] + locals[params[1]])) }}
+        let ops : Vec<GenOp<Local, ()>> = vec![
+            GenOp::Local
+            {
+                name: "add".into(), 
+                op: |locals, params| { 
+                    if let Local::Number(a) = locals[params[0]] && let Local::Number(b) = locals[params[1]] {
+                        Ok(Some(Local::Number(a + b)))
+                    }
+                    else {
+                        panic!("failure");
+                    }
+                }
+            }
         ];
         let fs = compile(vec![f]).unwrap();
-        let mut vm : Vm<Data, ()> = Vm::new(fs, ops);
+        let mut vm : Vm<Local, ()> = Vm::new(fs, ops);
 
         let result = vm.run(0).unwrap().unwrap();
 
-        assert_eq!(result, 21.0);
+        assert!(matches!(result, Local::Number(21.0)));
     }
 }

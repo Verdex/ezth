@@ -113,16 +113,16 @@ mod test {
             name: "other".into(),
             params: vec!["a".into(), "b".into()],
             stmts: vec![BetStmt::Let{var: "z".into(), val: BetExpr::Call("add".into(), vec![BetExpr::Var("a".into()), BetExpr::Var("b".into())])}],
-            body: BetExpr::Call("add".into(), vec![BetExpr::Var("z".into()), BetExpr::Data(5.0)]),
+            body: BetExpr::Call("add".into(), vec![BetExpr::Var("z".into()), BetExpr::Data(Local::Number(5.0))]),
         };
 
         let main = BetFun {
             name: "main".into(),
             params: vec![],
             stmts: vec![
-                BetStmt::Let { var: "x".into(), val: BetExpr::Data(2.0) },
+                BetStmt::Let { var: "x".into(), val: BetExpr::Data(Local::Number(2.0)) },
                 BetStmt::Let { var: "y".into(), val: BetExpr::Var("x".into()) },
-                BetStmt::Let { var: "z".into(), val: BetExpr::Data(3.0) },
+                BetStmt::Let { var: "z".into(), val: BetExpr::Data(Local::Number(3.0)) },
                 BetStmt::Let { 
                     var: "w".into(), 
                     val: BetExpr::Call("other".into(), vec![
@@ -163,7 +163,18 @@ mod test {
         };
 
         let ops : Vec<GenOp<Local, ()>> = vec![
-            GenOp::Local{name: "add".into(), op: |locals, params| { Ok(Some(locals[params[0]] + locals[params[1]])) }}
+            GenOp::Local
+            {
+                name: "add".into(), 
+                op: |locals, params| { 
+                    if let Local::Number(a) = locals[params[0]] && let Local::Number(b) = locals[params[1]] {
+                        Ok(Some(Local::Number(a + b)))
+                    }
+                    else {
+                        panic!("failure");
+                    }
+                }
+            }
         ];
         let op_map : HashMap<Rc<str>, usize> = HashMap::from([("add".into(), 0)]);
 
@@ -174,6 +185,6 @@ mod test {
 
         let result = vm.run(0).unwrap().unwrap();
 
-        assert_eq!(result, 132.0);
+        assert!(matches!(result, Local::Number(132.0)));
     }
 }

@@ -64,7 +64,7 @@ fn main() {
             ExprOrDef::Expr(e) => { 
                 let mut defs = defs.clone();
                 let ops = ops::op_list();
-                let op_map : HashMap<Rc<str>, usize> = ops.iter().enumerate().map(|(i, x)| (name(x), i)).collect();
+                let op_map : HashMap<Rc<str>, usize> = ops.iter().enumerate().map(|(i, x)| (x.name(), i)).collect();
 
                 defs.insert(0, Def { name: "main".into(), params: vec![], stmts: vec![], body: e});
 
@@ -83,13 +83,6 @@ fn main() {
         }
     }
 
-}
-
-fn name<T, S>(x : &GenOp<T, S>) -> Rc<str> {
-    match x {
-        GenOp::Local { name, .. } => Rc::clone(name),
-        _ => todo!(),
-    }
 }
 
 fn read(mut prev : String) -> io::Result<String> {

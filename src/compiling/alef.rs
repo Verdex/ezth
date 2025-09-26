@@ -5,7 +5,7 @@ use an_a_vm::data::*;
 use crate::data::runtime::*;
 
 pub enum AlefVal {
-    Data(Data),
+    Data(Local),
     Var(Rc<str>),
     FunCall(Rc<str>, Vec<Rc<str>>),
     LocalOp(usize, Vec<Rc<str>>),
@@ -44,7 +44,7 @@ impl std::fmt::Display for AlefError {
 
 impl std::error::Error for AlefError { }
 
-pub fn compile(input : Vec<AlefFun>) -> Result<Vec<Fun<Data>>, AlefError> {
+pub fn compile(input : Vec<AlefFun>) -> Result<Vec<Fun<Local>>, AlefError> {
     let mut names = input.iter().map(|x| Rc::clone(&x.name)).collect::<Vec<_>>();
     names.sort();
     let dup_funs = names.iter().zip(names.iter().skip(1)).filter(|(a, b)| a == b).map(|(a, _)| Rc::clone(a)).collect::<Vec<_>>();
@@ -57,7 +57,7 @@ pub fn compile(input : Vec<AlefFun>) -> Result<Vec<Fun<Data>>, AlefError> {
     input.into_iter().map(|f| compile_fun(f, &map)).collect()
 }
 
-fn compile_fun(f : AlefFun, fun_map : &HashMap<Rc<str>, usize>) -> Result<Fun<Data>, AlefError> {
+fn compile_fun(f : AlefFun, fun_map : &HashMap<Rc<str>, usize>) -> Result<Fun<Local>, AlefError> {
     let mut locals : HashMap<Rc<str>, usize> = f.params.into_iter().enumerate().map(|(i, x)| (Rc::clone(&x), i)).collect();
     let mut instrs = vec![];
     for stmt in f.stmts {

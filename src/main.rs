@@ -73,7 +73,7 @@ fn main() {
                         let mut vm = Vm::new(fs, ops);
 
                         let output = vm.run(0).unwrap().unwrap();
-                        println!("{}", output);
+                        println!("{:?}", output);
 
                     },
                     Err(e) => { println!("{}", e); },

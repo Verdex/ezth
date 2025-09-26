@@ -5,7 +5,7 @@ use crate::data::runtime::*;
 use super::alef::*;
 
 pub enum GimelVal {
-    Data(Data),
+    Data(Local),
     Var(Rc<str>),
     Call(Rc<str>, Vec<Rc<str>>),
 }

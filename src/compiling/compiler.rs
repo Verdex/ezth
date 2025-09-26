@@ -8,7 +8,7 @@ use super::alef;
 use super::bet::{self, BetExpr, BetFun, BetStmt};
 use super::gimel;
 
-pub fn compile(input : Vec<Def>, ops: &HashMap<Rc<str>, usize>) -> Result<Vec<Fun<Data>>, Box<dyn std::error::Error>> {
+pub fn compile(input : Vec<Def>, ops: &HashMap<Rc<str>, usize>) -> Result<Vec<Fun<Local>>, Box<dyn std::error::Error>> {
     let input = input.into_iter().map(convert_def).collect::<Vec<_>>();
     let input = bet::compile(input)?;
     let input = gimel::compile(input, ops)?;
@@ -34,7 +34,7 @@ fn convert_stmt(input : Stmt) -> BetStmt {
 fn convert_expr(input : Expr) -> BetExpr {
     match input { 
         Expr::Symbol(v) => BetExpr::Var(v),
-        Expr::Number(n) => BetExpr::Data(n.parse::<f64>().unwrap()),
+        Expr::Number(n) => BetExpr::Data(Local::Number(n.parse::<f64>().unwrap())),
         Expr::Call{ f, params } => {
             if let Expr::Symbol(v) = *f {
                 BetExpr::Call(v, params.into_iter().map(convert_expr).collect())

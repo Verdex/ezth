@@ -91,7 +91,7 @@ fn parse_stmts(input : &mut Input) -> Result<Vec<Stmt>, ParseError> {
 
 fn parse_expr(input : &mut Input) -> Result<Expr, ParseError> {
     let e = 
-    if let Lexeme::Symbol(v) = input.peek()? {
+    if let Lexeme::Symbol(_) = input.peek()? {
         Expr::Symbol(input.take()?.value())
     }
     else if matches!(input.peek()?, Lexeme::Number(_)) {

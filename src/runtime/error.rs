@@ -1,7 +1,7 @@
 
 #[derive(Debug)]
 pub enum RuntimeError {
-    Type(Rc<str>),
+    Type { src: &'static str, expected: &'static str },
 }
 
 impl std::fmt::Display for RuntimeError {

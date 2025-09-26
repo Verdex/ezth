@@ -16,7 +16,7 @@ pub enum BetStmt {
 }
 
 pub enum BetExpr {
-    Data(Data),
+    Data(Local),
     Var(Rc<str>),
     Call(Rc<str>, Vec<BetExpr>)
 }
@@ -162,7 +162,7 @@ mod test {
             ]) 
         };
 
-        let ops : Vec<GenOp<Data, ()>> = vec![
+        let ops : Vec<GenOp<Local, ()>> = vec![
             GenOp::Local{name: "add".into(), op: |locals, params| { Ok(Some(locals[params[0]] + locals[params[1]])) }}
         ];
         let op_map : HashMap<Rc<str>, usize> = HashMap::from([("add".into(), 0)]);
@@ -170,7 +170,7 @@ mod test {
         let gimel_fs = compile(vec![main, other]).unwrap();
         let alef_fs = gimel::compile(gimel_fs, &op_map).unwrap();
         let fs = alef::compile(alef_fs).unwrap();
-        let mut vm : Vm<Data, ()> = Vm::new(fs, ops);
+        let mut vm : Vm<Local, ()> = Vm::new(fs, ops);
 
         let result = vm.run(0).unwrap().unwrap();
 

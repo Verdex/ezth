@@ -4,8 +4,8 @@ version = 4
 
 [[package]]
 name = "an_a_vm"
-version = "2.0.0"
-source = "git+https://www.github.com/verdex/an_a_vm?tag=release-2.0.0#1a28fbe4a3a4249814fc0e4049c81d0739a68c7d"
+version = "2.1.0"
+source = "git+https://www.github.com/verdex/an_a_vm?tag=release-2.1.0#ab5f3e5d769a8501815f24fcb5052916b0cc8278"
 
 [[package]]
 name = "ezth"

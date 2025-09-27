@@ -13,5 +13,5 @@ pub enum Local {
 pub enum Global {
     Number(f64),
     Ref(usize),
-    Data(Rc<str>, Vec<Local>),
+    Data(Rc<str>, Vec<Global>),
 }

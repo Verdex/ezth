@@ -5,7 +5,7 @@ use an_a_vm::data::*;
 use crate::data::runtime::*;
 
 pub enum AlefVal {
-    Data(Local),
+    Local(Local),
     Var(Rc<str>),
     FunCall(Rc<str>, Vec<Rc<str>>),
     LocalOp(usize, Vec<Rc<str>>),
@@ -69,7 +69,7 @@ fn compile_fun(f : AlefFun, fun_map : &HashMap<Rc<str>, usize>) -> Result<Fun<Lo
             },
             AlefStmt::Let { var, val } => {
                 match val { 
-                    AlefVal::Data(data) => { instrs.push(Op::PushLocal(data)); },
+                    AlefVal::Local(data) => { instrs.push(Op::PushLocal(data)); },
                     AlefVal::Var(v) => {
                         let local = get_local(&locals, &v, &f.name)?;
                         instrs.push(Op::Dup(local));
@@ -131,7 +131,7 @@ mod test {
             name: "fb".into(),
             params: vec![],
             stmts: vec![
-                AlefStmt::Let { var: "a".into(), val: AlefVal::Data(Local::Number(19.0)) },
+                AlefStmt::Let { var: "a".into(), val: AlefVal::Local(Local::Number(19.0)) },
                 AlefStmt::Let { var: "b".into(), val: AlefVal::FunCall("fa".into(), vec!["a".into()]) },
                 AlefStmt::ReturnVar("b".into()),
             ],
@@ -150,7 +150,7 @@ mod test {
             name: "fun".into(),
             params: vec![],
             stmts: vec![
-                AlefStmt::Let { var: "a".into(), val: AlefVal::Data(Local::Number(19.0)) },
+                AlefStmt::Let { var: "a".into(), val: AlefVal::Local(Local::Number(19.0)) },
                 AlefStmt::Let { var: "b".into(), val: AlefVal::Var("a".into()) },
                 AlefStmt::ReturnVar("b".into()),
             ],
@@ -169,8 +169,8 @@ mod test {
             name: "fun".into(),
             params: vec![],
             stmts: vec![
-                AlefStmt::Let { var: "a".into(), val: AlefVal::Data(Local::Number(19.0)) },
-                AlefStmt::Let { var: "b".into(), val: AlefVal::Data(Local::Number(2.0)) },
+                AlefStmt::Let { var: "a".into(), val: AlefVal::Local(Local::Number(19.0)) },
+                AlefStmt::Let { var: "b".into(), val: AlefVal::Local(Local::Number(2.0)) },
                 AlefStmt::Let { var: "c".into(), val: AlefVal::LocalOp(0, vec!["a".into(), "b".into()]) },
                 AlefStmt::ReturnVar("c".into()),
             ],

@@ -16,7 +16,7 @@ pub enum BetStmt {
 }
 
 pub enum BetExpr {
-    Data(Local),
+    Local(Local),
     Var(Rc<str>),
     Call(Rc<str>, Vec<BetExpr>)
 }
@@ -67,7 +67,7 @@ fn compile_stmt(i : &mut usize, s : BetStmt) -> Result<Vec<GimelStmt>, BetError>
 fn compile_expr(i : &mut usize, e : BetExpr) -> Result<(Vec<GimelStmt>, Rc<str>), BetError> { 
     let var = gen_sym(i);
     match e {
-        BetExpr::Data(d) => Ok((vec![GimelStmt::Let { var: Rc::clone(&var), val: GimelVal::Data(d) }], var)),
+        BetExpr::Local(d) => Ok((vec![GimelStmt::Let { var: Rc::clone(&var), val: GimelVal::Local(d) }], var)),
         BetExpr::Var(v) => Ok((vec![], v)),
         BetExpr::Call(n, ps) => {
             let x = ps.into_iter().map(|p| compile_expr(i, p)).collect::<Result<Vec<_>, _>>()?;
@@ -113,16 +113,16 @@ mod test {
             name: "other".into(),
             params: vec!["a".into(), "b".into()],
             stmts: vec![BetStmt::Let{var: "z".into(), val: BetExpr::Call("add".into(), vec![BetExpr::Var("a".into()), BetExpr::Var("b".into())])}],
-            body: BetExpr::Call("add".into(), vec![BetExpr::Var("z".into()), BetExpr::Data(Local::Number(5.0))]),
+            body: BetExpr::Call("add".into(), vec![BetExpr::Var("z".into()), BetExpr::Local(Local::Number(5.0))]),
         };
 
         let main = BetFun {
             name: "main".into(),
             params: vec![],
             stmts: vec![
-                BetStmt::Let { var: "x".into(), val: BetExpr::Data(Local::Number(2.0)) },
+                BetStmt::Let { var: "x".into(), val: BetExpr::Local(Local::Number(2.0)) },
                 BetStmt::Let { var: "y".into(), val: BetExpr::Var("x".into()) },
-                BetStmt::Let { var: "z".into(), val: BetExpr::Data(Local::Number(3.0)) },
+                BetStmt::Let { var: "z".into(), val: BetExpr::Local(Local::Number(3.0)) },
                 BetStmt::Let { 
                     var: "w".into(), 
                     val: BetExpr::Call("other".into(), vec![

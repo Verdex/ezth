@@ -5,7 +5,7 @@ use crate::data::runtime::*;
 use super::alef::*;
 
 pub enum GimelVal {
-    Data(Local),
+    Local(Local),
     Var(Rc<str>),
     Call(Rc<str>, Vec<Rc<str>>),
 }
@@ -54,7 +54,7 @@ fn compile_stmt(input : GimelStmt, op_map : &HashMap<Rc<str>, usize>) -> Result<
 
 fn compile_val(input : GimelVal, op_map : &HashMap<Rc<str>, usize>) -> Result<AlefVal, GimelError> {
     match input {
-        GimelVal::Data(d) => Ok(AlefVal::Data(d)),
+        GimelVal::Local(d) => Ok(AlefVal::Local(d)),
         GimelVal::Var(v) => Ok(AlefVal::Var(v)),
         GimelVal::Call(n, ps) if op_map.contains_key(&n) => {
             let index = op_map.get(&n).unwrap();

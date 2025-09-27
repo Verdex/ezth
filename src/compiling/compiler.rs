@@ -34,7 +34,10 @@ fn convert_stmt(input : Stmt) -> BetStmt {
 fn convert_expr(input : Expr) -> BetExpr {
     match input { 
         Expr::Symbol(v) => BetExpr::Var(v),
-        Expr::Number(n) => BetExpr::Data(Local::Number(n.parse::<f64>().unwrap())),
+        Expr::Number(n) => BetExpr::Local(Local::Number(n.parse::<f64>().unwrap())),
+        Expr::Data(n, exprs) => {
+            todo!()
+        },
         Expr::Call{ f, params } => {
             if let Expr::Symbol(v) = *f {
                 BetExpr::Call(v, params.into_iter().map(convert_expr).collect())

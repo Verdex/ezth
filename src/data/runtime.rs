@@ -10,7 +10,7 @@ pub enum Local {
     Symbol(Rc<str>),
 }
 
-pub enum Heap {
+pub enum Global {
     Number(f64),
     Ref(usize),
     Data(Rc<str>, Vec<Local>),

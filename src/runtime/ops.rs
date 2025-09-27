@@ -37,10 +37,6 @@ fn cons(globals: &mut Vec<Global>, locals: &[Local], params : &[usize]) -> Resul
     else {
         return Err(Box::new(RuntimeError::Type { src: cons_op, expected: "Local::Symbol"}));
     }
-
-    // TODO 
-    // first param had better indicate a symbol in locals
-    // arbitrary many params can follow
 }
 
 fn local_to_global(local : &Local) -> Global {

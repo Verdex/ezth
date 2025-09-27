@@ -9,6 +9,7 @@ use std::rc::Rc;
 use std::collections::HashMap;
 use an_a_vm::*;
 use an_a_vm::data::*;
+use crate::data::runtime::*;
 use crate::data::parse::*;
 use crate::parsing::parser;
 use crate::compiling::compiler;
@@ -75,6 +76,8 @@ fn main() {
                         let output = vm.run(0).unwrap().unwrap();
                         println!("{:?}", output);
 
+                        let globals = vm.with_globals(vec![]);
+                        println!("{:?}", globals);
                     },
                     Err(e) => { println!("{}", e); },
                 }

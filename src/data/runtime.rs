@@ -10,6 +10,7 @@ pub enum Local {
     Symbol(Rc<str>),
 }
 
+#[derive(Debug)]
 pub enum Global {
     Number(f64),
     Ref(usize),

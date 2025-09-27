@@ -1,6 +1,8 @@
 
 use std::rc::Rc;
 
+pub const cons_op : &'static str = "cons";
+
 #[derive(Clone, Debug)]
 pub enum Local {
     Number(f64),

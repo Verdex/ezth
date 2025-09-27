@@ -36,7 +36,9 @@ fn convert_expr(input : Expr) -> BetExpr {
         Expr::Symbol(v) => BetExpr::Var(v),
         Expr::Number(n) => BetExpr::Local(Local::Number(n.parse::<f64>().unwrap())),
         Expr::Data(n, exprs) => {
-            todo!()
+            let mut exprs = exprs.into_iter().map(convert_expr).collect::<Vec<_>>();
+            exprs.insert(0, BetExpr::Local(Local::Symbol(n)));
+            BetExpr::Call(cons_op.into(), exprs)
         },
         Expr::Call{ f, params } => {
             if let Expr::Symbol(v) = *f {
@@ -46,6 +48,5 @@ fn convert_expr(input : Expr) -> BetExpr {
                 panic!("fun expr currently not supported")
             }
         },
-        Expr::Data(_, _) => todo!(),
     }
 }

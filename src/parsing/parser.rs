@@ -100,6 +100,9 @@ fn parse_expr(input : &mut Input) -> Result<Expr, ParseError> {
     else if input.check(|x| x.eq(&Lexeme::Colon))? {
         parse_data(input)?
     }
+    else if input.check(|x| x.eq(&Lexeme::LSquare))? {
+        parse_data_list(input)?
+    }
     else {
         panic!("parse expr TODO {:?}", input.peek())
     };
@@ -157,4 +160,18 @@ fn parse_list<T, F : Fn(&mut Input) -> Result<T, ParseError>>(input : &mut Input
         ret.push(f(input)?);
     }
     Ok(ret)
+}
+
+fn parse_data_list(input : &mut Input) -> Result<Expr, ParseError> {
+    use crate::data::runtime;
+    let mut ret = vec![];
+    if input.check(|l| l.eq(&Lexeme::RSquare))? {
+        return Ok(Expr::Data(runtime::list_data.into(), ret));
+    }
+    ret.push(parse_expr(input)?);
+    while input.check(|l| l.eq(&Lexeme::RSquare))? == false {
+        input.expect(|l| l.eq(&Lexeme::Comma))?;
+        ret.push(parse_expr(input)?);
+    }
+    Ok(Expr::Data(runtime::list_data.into(), ret))
 }

@@ -2,6 +2,7 @@
 use std::rc::Rc;
 
 pub const cons_op : &'static str = "cons";
+pub const list_data : &'static str = "list";
 
 #[derive(Clone, Debug)]
 pub enum Local {

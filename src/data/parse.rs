@@ -34,3 +34,17 @@ pub enum Expr {
     Data(Rc<str>, Vec<Expr>),
     Call { f : Box<Expr>, params : Vec<Expr> },
 }
+
+#[derive(Debug, Clone)]
+pub enum SPattern {
+    Wild,
+    Number(Rc<str>),
+    CaptureVar(Rc<str>),
+    Var(Rc<str>),
+    Data(Rc<str>, Vec<SPattern>),
+    And(Box<SPattern>, Box<SPattern>),
+    Or(Box<SPattern>, Box<SPattern>),
+    PathNext,
+    Path(Vec<SPattern>),
+    ListPath(Vec<SPattern>),
+}

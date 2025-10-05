@@ -197,10 +197,14 @@ fn parse_spattern(input : &mut Input) -> Result<SPattern, ParseError> {
         let items = parse_list(input, parse_spattern, Lexeme::RSquare)?;
         SPattern::Data(runtime::list_data.into(), items)
     }
-    /*else if input.check(|x| x.eq(&Lexeme::LOrSquare))? {
-    }*/
-    // TODO path list parsing
-    // TODO path parsing
+    else if input.check(|x| x.eq(&Lexeme::LOrSquare))? {
+        let items = parse_list(input, parse_spattern, Lexeme::ROrSquare)?;
+        SPattern::ListPath(items)
+    }
+    else if input.check(|x| x.eq(&Lexeme::LOrCurl))? {
+        let items = parse_list(input, parse_spattern, Lexeme::ROrCurl)?;
+        SPattern::Path(items)
+    }
     else {
         panic!("parse spattern TODO {:?}", input.peek())
     };

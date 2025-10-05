@@ -69,7 +69,7 @@ pub fn parse(input : &str) -> Result<ReplTopLevel, ParseError> {
 fn parse_def(input : &mut Input) -> Result<Def, ParseError> {
     let name = input.expect(|l| matches!(l, Lexeme::Symbol(_)))?.value();
     input.expect(|l| l.eq(&Lexeme::LParen))?;
-    let params = parse_list(input, |input| input.expect(|l| matches!(l, Lexeme::Symbol(_))))?
+    let params = parse_list(input, |input| input.expect(|l| matches!(l, Lexeme::Symbol(_))), Lexeme::RParen)?
                     .into_iter()
                     .map(|s| s.value())
                     .collect::<Vec<_>>();
@@ -138,13 +138,13 @@ fn parse_let(input : &mut Input) -> Result<Stmt, ParseError> {
 }
 
 fn parse_call_params(input : &mut Input) -> Result<Vec<Expr>, ParseError> {
-    parse_list(input, parse_expr)
+    parse_list(input, parse_expr, Lexeme::RParen)
 }
 
 fn parse_data(input : &mut Input) -> Result<Expr, ParseError> {
     let name = input.expect(|l| matches!(l, Lexeme::Symbol(_)))?.value();
     if input.check(|l| l.eq(&Lexeme::LParen))? {
-        let params = parse_list(input, parse_expr)?;
+        let params = parse_list(input, parse_expr, Lexeme::RParen)?;
         Ok(Expr::Data(name, params))
     }
     else {
@@ -152,13 +152,15 @@ fn parse_data(input : &mut Input) -> Result<Expr, ParseError> {
     }
 }
 
-fn parse_list<T, F : Fn(&mut Input) -> Result<T, ParseError>>(input : &mut Input, f : F) -> Result<Vec<T>, ParseError> {
+fn parse_list<T, F : Fn(&mut Input) -> Result<T, ParseError>>(input : &mut Input, f : F, end : Lexeme) 
+    -> Result<Vec<T>, ParseError> {
+
     let mut ret = vec![];
-    if input.check(|l| l.eq(&Lexeme::RParen))? {
+    if input.check(|l| l.eq(&end))? {
         return Ok(vec![]);
     }
     ret.push(f(input)?);
-    while input.check(|l| l.eq(&Lexeme::RParen))? == false {
+    while input.check(|l| l.eq(&end))? == false {
         input.expect(|l| l.eq(&Lexeme::Comma))?;
         ret.push(f(input)?);
     }
@@ -209,10 +211,12 @@ fn parse_spattern(input : &mut Input) -> Result<SPattern, ParseError> {
     else if input.check(|x| x.eq(&Lexeme::LSquare))? {
         parse_pattern_list(input)?
     }
+    /*else if input.check(|x| x.eq(&Lexeme::LOrSquare))? {
+    }*/
     // TODO path list parsing
     // TODO path parsing
     else {
-        panic!("parse expr TODO {:?}", input.peek())
+        panic!("parse spattern TODO {:?}", input.peek())
     };
     parse_after_spattern(input, p)
 }
@@ -221,7 +225,7 @@ fn parse_spattern_data(input : &mut Input) -> Result<SPattern, ParseError> {
     let name = input.expect(|l| matches!(l, Lexeme::Symbol(_)))?.value();
 
     if input.check(|x| x.eq(&Lexeme::LParen))? {
-        let ps = parse_list(input, parse_spattern)?;
+        let ps = parse_list(input, parse_spattern, Lexeme::RParen)?;
         Ok(SPattern::Data(name, ps))
     }
     else {

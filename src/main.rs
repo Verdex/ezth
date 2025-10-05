@@ -59,10 +59,10 @@ fn main() {
         prev_line = String::new();
 
         match def_or_exprs {
-            ExprOrDef::Def(d) => { 
+            ReplTopLevel::Def(d) => { 
                 defs.push(d); 
             },
-            ExprOrDef::Expr(e) => { 
+            ReplTopLevel::Expr(e) => { 
                 let mut defs = defs.clone();
                 let ops = ops::op_list();
                 let op_map : HashMap<Rc<str>, usize> = ops.iter().enumerate().map(|(i, x)| (x.name(), i)).collect();

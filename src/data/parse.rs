@@ -9,7 +9,7 @@ pub enum ParseError {
 }
 
 #[derive(Debug, Clone)]
-pub enum ExprOrDef {
+pub enum ReplTopLevel {
     Expr(Expr),
     Def(Def),
 }

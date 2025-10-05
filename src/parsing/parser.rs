@@ -44,7 +44,7 @@ use super::lexer;
 */
 
 
-pub fn parse(input : &str) -> Result<ExprOrDef, ParseError> {
+pub fn parse(input : &str) -> Result<ReplTopLevel, ParseError> {
     let input = match lexer::lex(input) {
         Err(i) => { return Err(ParseError::Lex(i)); },
         Ok(ls) => ls,
@@ -54,10 +54,10 @@ pub fn parse(input : &str) -> Result<ExprOrDef, ParseError> {
 
     let result = 
     if input.check(|l| l.eq(&Lexeme::Def))? {
-        ExprOrDef::Def(parse_def(&mut input)?)
+        ReplTopLevel::Def(parse_def(&mut input)?)
     }
     else {
-        ExprOrDef::Expr(parse_expr(&mut input)?)
+        ReplTopLevel::Expr(parse_expr(&mut input)?)
     };
 
     Ok(result)

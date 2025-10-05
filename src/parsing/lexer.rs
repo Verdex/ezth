@@ -86,6 +86,7 @@ fn punct(input : &mut Input) -> Result<Vec<Lexeme>, usize> {
             // Note:  $symbol and :symbol are perhaps alternatives worth looking into
             ':' => { ret.push(Lexeme::Colon); },
             '$' => { ret.push(Lexeme::Dollar); },
+            '^' => { ret.push(Lexeme::Caret); },
             _ => unreachable!(),
         }
         input.next().unwrap();
@@ -107,7 +108,8 @@ fn punct_char(input : char) -> bool {
     input == '>' ||
     input == ';' ||
     input == ':' ||
-    input == '$'
+    input == '$' ||
+    input == '^'
 }
 
 // Note:  Only call this function when you know the first char is what you want

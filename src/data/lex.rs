@@ -13,6 +13,10 @@ pub enum Lexeme {
     RCurl,
     LSquare,
     RSquare,
+    LOrSquare,
+    ROrSquare,
+    LOrCurl,
+    ROrCurl,
     Dot,
     Comma,
     OrBar,
@@ -22,6 +26,7 @@ pub enum Lexeme {
     Colon,
     Pat,
     Dollar,
+    Caret,
 }
 
 impl Lexeme {

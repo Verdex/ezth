@@ -193,7 +193,9 @@ fn parse_spattern(input : &mut Input) -> Result<SPattern, ParseError> {
         parse_spattern_data(input)?
     }
     else if input.check(|x| x.eq(&Lexeme::LSquare))? {
-        parse_pattern_list(input)?
+        use crate::data::runtime;
+        let items = parse_list(input, parse_spattern, Lexeme::RSquare)?;
+        SPattern::Data(runtime::list_data.into(), items)
     }
     /*else if input.check(|x| x.eq(&Lexeme::LOrSquare))? {
     }*/
@@ -233,18 +235,4 @@ fn parse_after_spattern(input : &mut Input, p : SPattern) -> Result<SPattern, Pa
     else {
         Ok(e)
     }*/
-}
-
-fn parse_pattern_list(input : &mut Input) -> Result<SPattern, ParseError> {
-    use crate::data::runtime;
-    let mut ret = vec![];
-    if input.check(|l| l.eq(&Lexeme::RSquare))? {
-        return Ok(SPattern::Data(runtime::list_data.into(), ret));
-    }
-    ret.push(parse_spattern(input)?);
-    while input.check(|l| l.eq(&Lexeme::RSquare))? == false {
-        input.expect(|l| l.eq(&Lexeme::Comma))?;
-        ret.push(parse_spattern(input)?);
-    }
-    Ok(SPattern::Data(runtime::list_data.into(), ret))
 }

@@ -21,6 +21,7 @@ pub enum Lexeme {
     SemiColon,
     Colon,
     Pat,
+    Dollar,
 }
 
 impl Lexeme {

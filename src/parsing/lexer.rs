@@ -106,7 +106,8 @@ fn punct_char(input : char) -> bool {
     input == '=' ||
     input == '>' ||
     input == ';' ||
-    input == ':'
+    input == ':' ||
+    input == '$'
 }
 
 // Note:  Only call this function when you know the first char is what you want

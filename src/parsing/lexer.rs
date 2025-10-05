@@ -75,13 +75,55 @@ fn punct(input : &mut Input) -> Result<Vec<Lexeme>, usize> {
             },
             '(' => { ret.push(Lexeme::LParen); },
             ')' => { ret.push(Lexeme::RParen); },
-            '{' => { ret.push(Lexeme::LCurl); },
+            '{' => { 
+                input.next().unwrap();
+                if let Some((_, c)) = input.peek() && *c == '|' {
+                    ret.push(Lexeme::LOrCurl);
+                }
+                else if let Some((_, c)) = input.peek() && punct_char(*c) {
+                    ret.push(Lexeme::LCurl);
+                    continue;
+                }
+                else {
+                    ret.push(Lexeme::LCurl); 
+                    return Ok(ret);
+                }
+            },
             '}' => { ret.push(Lexeme::RCurl); },
-            '[' => { ret.push(Lexeme::LSquare); },
+            '[' => { 
+                input.next().unwrap();
+                if let Some((_, c)) = input.peek() && *c == '|' {
+                    ret.push(Lexeme::LOrSquare);
+                }
+                else if let Some((_, c)) = input.peek() && punct_char(*c) {
+                    ret.push(Lexeme::LSquare);
+                    continue;
+                }
+                else {
+                    ret.push(Lexeme::LSquare); 
+                    return Ok(ret);
+                }
+            },
             ']' => { ret.push(Lexeme::RSquare); },
             '.' => { ret.push(Lexeme::Dot); },
             ',' =>{ ret.push(Lexeme::Comma); },
-            '|' => { ret.push(Lexeme::OrBar); },
+            '|' => { 
+                input.next().unwrap();
+                if let Some((_, c)) = input.peek() && *c == ']' {
+                    ret.push(Lexeme::ROrSquare);
+                }
+                else if let Some((_, c)) = input.peek() && *c == '}' {
+                    ret.push(Lexeme::ROrCurl);
+                }
+                else if let Some((_, c)) = input.peek() && punct_char(*c) {
+                    ret.push(Lexeme::OrBar);
+                    continue;
+                }
+                else {
+                    ret.push(Lexeme::OrBar); 
+                    return Ok(ret);
+                }
+            },
             ';' => { ret.push(Lexeme::SemiColon); },
             // Note:  $symbol and :symbol are perhaps alternatives worth looking into
             ':' => { ret.push(Lexeme::Colon); },

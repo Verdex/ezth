@@ -12,6 +12,7 @@ pub enum ParseError {
 pub enum ReplTopLevel {
     Expr(Expr),
     Def(Def),
+    Pat(Pat),
 }
 
 #[derive(Debug, Clone)]
@@ -19,6 +20,12 @@ pub struct Def {
     pub name: Rc<str>,
     pub params: Vec<Rc<str>>,
     pub stmts: Vec<Stmt>,
+    pub body: Expr,
+}
+
+#[derive(Debug, Clone)]
+pub struct Pat {
+    pub name: Rc<str>,
     pub body: Expr,
 }
 

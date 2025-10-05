@@ -81,8 +81,10 @@ fn main() {
                     },
                     Err(e) => { println!("{}", e); },
                 }
-
             },
+            ReplTopLevel::Pat(_) => {
+                todo!()
+            }
         }
     }
 

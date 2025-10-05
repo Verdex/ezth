@@ -83,7 +83,9 @@ fn punct(input : &mut Input) -> Result<Vec<Lexeme>, usize> {
             ',' =>{ ret.push(Lexeme::Comma); },
             '|' => { ret.push(Lexeme::OrBar); },
             ';' => { ret.push(Lexeme::SemiColon); },
+            // Note:  $symbol and :symbol are perhaps alternatives worth looking into
             ':' => { ret.push(Lexeme::Colon); },
+            '$' => { ret.push(Lexeme::Dollar); },
             _ => unreachable!(),
         }
         input.next().unwrap();

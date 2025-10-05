@@ -212,8 +212,15 @@ fn parse_spattern(input : &mut Input) -> Result<SPattern, ParseError> {
 }
 
 fn parse_spattern_data(input : &mut Input) -> Result<SPattern, ParseError> {
+    let name = input.expect(|l| matches!(l, Lexeme::Symbol(_)))?.value();
 
-    todo!()
+    if input.check(|x| x.eq(&Lexeme::LParen))? {
+        let ps = parse_list(input, parse_spattern)?;
+        Ok(SPattern::Data(name, ps))
+    }
+    else {
+        Ok(SPattern::Data(name, vec![]))
+    }
 }
 
 fn parse_after_spattern(input : &mut Input, p : SPattern) -> Result<SPattern, ParseError> {

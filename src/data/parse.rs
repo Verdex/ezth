@@ -26,7 +26,7 @@ pub struct Def {
 #[derive(Debug, Clone)]
 pub struct Pat {
     pub name: Rc<str>,
-    pub body: Expr,
+    pub body: SPattern,
 }
 
 #[derive(Debug, Clone)]

@@ -56,6 +56,9 @@ pub fn parse(input : &str) -> Result<ReplTopLevel, ParseError> {
     if input.check(|l| l.eq(&Lexeme::Def))? {
         ReplTopLevel::Def(parse_def(&mut input)?)
     }
+    else if input.check(|l| l.eq(&Lexeme::Pat))? {
+        ReplTopLevel::Pat(parse_pat(&mut input)?)
+    }
     else {
         ReplTopLevel::Expr(parse_expr(&mut input)?)
     };
@@ -176,6 +179,14 @@ fn parse_data_list(input : &mut Input) -> Result<Expr, ParseError> {
     Ok(Expr::Data(runtime::list_data.into(), ret))
 }
 
+fn parse_pat(input : &mut Input) -> Result<Pat, ParseError> {
+    let name = input.expect(|l| matches!(l, Lexeme::Symbol(_)))?.value();
+    input.expect(|l| l.eq(&Lexeme::LCurl))?;
+    let body = parse_spattern(input)?;
+    input.expect(|l| l.eq(&Lexeme::RCurl))?;
+    Ok(Pat { name, body })
+}
+
 fn parse_spattern(input : &mut Input) -> Result<SPattern, ParseError> {
     let p = 
     if let Lexeme::Symbol(s) = input.peek()? && s.as_ref() == "_" {
@@ -189,7 +200,7 @@ fn parse_spattern(input : &mut Input) -> Result<SPattern, ParseError> {
         SPattern::Number(input.take()?.value())
     }
     else if input.check(|x| x.eq(&Lexeme::Colon))? {
-        parse_s_pattern_data(input)?
+        parse_spattern_data(input)?
     }
     /*else if input.check(|x| x.eq(&Lexeme::LSquare))? {
         parse_data_list(input)?
@@ -200,7 +211,7 @@ fn parse_spattern(input : &mut Input) -> Result<SPattern, ParseError> {
     parse_after_spattern(input, p)
 }
 
-fn parse_s_pattern_data(input : &mut Input) -> Result<SPattern, ParseError> {
+fn parse_spattern_data(input : &mut Input) -> Result<SPattern, ParseError> {
 
     todo!()
 }

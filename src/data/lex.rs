@@ -20,6 +20,7 @@ pub enum Lexeme {
     Equal,
     SemiColon,
     Colon,
+    Pat,
 }
 
 impl Lexeme {

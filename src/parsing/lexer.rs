@@ -177,9 +177,12 @@ mod test {
     #[test]
     fn should_parse_punctuation_stream() {
         use Lexeme::*;
-        let mut w = "(){}[].,|==>".char_indices().peekable();
+        let mut w = "(){}[].,|==>|}|]^{|[|".char_indices().peekable();
         let o = punct(&mut w).unwrap();
-        assert_eq!(o, vec![LParen, RParen, LCurl, RCurl, LSquare, RSquare, Dot, Comma, OrBar, Equal, DRArrow]);
+        assert_eq!(o, vec![LParen, RParen, LCurl, RCurl, LSquare, 
+                           RSquare, Dot, Comma, OrBar, Equal, 
+                           DRArrow, ROrCurl, ROrSquare, Caret, LOrCurl, 
+                           LOrSquare]);
     }
 
     #[test]
@@ -203,5 +206,40 @@ mod test {
         let o = take_until(&mut w, |_| { x+=1; true });
         assert_eq!(x, 3);
         assert_eq!(o, vec!['b', 'l', 'a', 'h']);
+    }
+
+    #[test]
+    fn should_lex_equal_followed_by_punct() {
+        let mut input = "=,".char_indices().peekable();
+        let o = punct(&mut input).unwrap();
+        assert_eq!(o, vec![Lexeme::Equal, Lexeme::Comma])
+    }
+
+    #[test]
+    fn should_lex_equal_followed_by_symbol() {
+        let mut input = "=blah".char_indices().peekable();
+        let o = punct(&mut input).unwrap();
+        assert_eq!(o, vec![Lexeme::Equal])
+    }
+
+    #[test]
+    fn should_lex_orbar_followed_by_symbol() {
+        let mut input = "|blah".char_indices().peekable();
+        let o = punct(&mut input).unwrap();
+        assert_eq!(o, vec![Lexeme::OrBar])
+    }
+
+    #[test]
+    fn should_lex_lcurl_followed_by_symbol() {
+        let mut input = "{blah".char_indices().peekable();
+        let o = punct(&mut input).unwrap();
+        assert_eq!(o, vec![Lexeme::LCurl])
+    }
+
+    #[test]
+    fn should_lex_lsquare_followed_by_symbol() {
+        let mut input = "[blah".char_indices().peekable();
+        let o = punct(&mut input).unwrap();
+        assert_eq!(o, vec![Lexeme::LSquare])
     }
 }

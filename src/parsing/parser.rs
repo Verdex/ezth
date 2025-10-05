@@ -196,12 +196,19 @@ fn parse_spattern(input : &mut Input) -> Result<SPattern, ParseError> {
     else if let Lexeme::Symbol(_) = input.peek()? {
         SPattern::CaptureVar(input.take()?.value())
     }
+    else if input.check(|x| x.eq(&Lexeme::Dollar))? {
+        let name = input.expect(|x| matches!(x, Lexeme::Symbol(_)))?.value();
+        SPattern::Var(name)
+    }
     else if matches!(input.peek()?, Lexeme::Number(_)) {
         SPattern::Number(input.take()?.value())
     }
     else if input.check(|x| x.eq(&Lexeme::Colon))? {
         parse_spattern_data(input)?
     }
+    // TODO normal list parsing
+    // TODO path list parsing
+    // TODO path parsing
     /*else if input.check(|x| x.eq(&Lexeme::LSquare))? {
         parse_data_list(input)?
     }*/
@@ -230,6 +237,7 @@ fn parse_after_spattern(input : &mut Input, p : SPattern) -> Result<SPattern, Pa
         Ok(_) => { },
     }
 
+    // TODO and / or parsing
     Ok(p)
     /*if input.check(|l| l.eq(&Lexeme::LParen))? {
         let params = parse_call_params(input)?;

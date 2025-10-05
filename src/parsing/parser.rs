@@ -205,6 +205,9 @@ fn parse_spattern(input : &mut Input) -> Result<SPattern, ParseError> {
         let items = parse_list(input, parse_spattern, Lexeme::ROrCurl)?;
         SPattern::Path(items)
     }
+    else if input.check(|x| x.eq(&Lexeme::Caret))? {
+        SPattern::Next
+    }
     else {
         panic!("parse spattern TODO {:?}", input.peek())
     };

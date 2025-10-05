@@ -54,4 +54,5 @@ pub enum SPattern {
     PathNext,
     Path(Vec<SPattern>),
     ListPath(Vec<SPattern>),
+    Next,
 }

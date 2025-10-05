@@ -121,7 +121,7 @@ fn parse_after_expr(input : &mut Input, e : Expr) -> Result<Expr, ParseError> {
     }
 
     if input.check(|l| l.eq(&Lexeme::LParen))? {
-        let params = parse_call_params(input)?;
+        let params = parse_list(input, parse_expr, Lexeme::RParen)?;
         Ok(Expr::Call{ f: Box::new(e), params })
     }
     else {
@@ -135,10 +135,6 @@ fn parse_let(input : &mut Input) -> Result<Stmt, ParseError> {
     let val = Box::new(parse_expr(input)?);
     input.expect(|l| l.eq(&Lexeme::SemiColon))?;
     Ok(Stmt::Let { var: var.value(), val })
-}
-
-fn parse_call_params(input : &mut Input) -> Result<Vec<Expr>, ParseError> {
-    parse_list(input, parse_expr, Lexeme::RParen)
 }
 
 fn parse_data(input : &mut Input) -> Result<Expr, ParseError> {

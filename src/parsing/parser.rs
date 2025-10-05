@@ -175,3 +175,49 @@ fn parse_data_list(input : &mut Input) -> Result<Expr, ParseError> {
     }
     Ok(Expr::Data(runtime::list_data.into(), ret))
 }
+
+fn parse_spattern(input : &mut Input) -> Result<SPattern, ParseError> {
+    let p = 
+    if let Lexeme::Symbol(s) = input.peek()? && s.as_ref() == "_" {
+        input.take()?;
+        SPattern::Wild
+    }
+    else if let Lexeme::Symbol(_) = input.peek()? {
+        SPattern::CaptureVar(input.take()?.value())
+    }
+    else if matches!(input.peek()?, Lexeme::Number(_)) {
+        SPattern::Number(input.take()?.value())
+    }
+    else if input.check(|x| x.eq(&Lexeme::Colon))? {
+        parse_s_pattern_data(input)?
+    }
+    /*else if input.check(|x| x.eq(&Lexeme::LSquare))? {
+        parse_data_list(input)?
+    }*/
+    else {
+        panic!("parse expr TODO {:?}", input.peek())
+    };
+    parse_after_spattern(input, p)
+}
+
+fn parse_s_pattern_data(input : &mut Input) -> Result<SPattern, ParseError> {
+
+    todo!()
+}
+
+fn parse_after_spattern(input : &mut Input, p : SPattern) -> Result<SPattern, ParseError> {
+    match input.peek() {
+        Err(ParseError::Eof) => { return Ok(p); },
+        Err(err) => { return Err(err); },
+        Ok(_) => { },
+    }
+
+    Ok(p)
+    /*if input.check(|l| l.eq(&Lexeme::LParen))? {
+        let params = parse_call_params(input)?;
+        Ok(Expr::Call{ f: Box::new(e), params })
+    }
+    else {
+        Ok(e)
+    }*/
+}

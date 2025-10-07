@@ -48,5 +48,6 @@ fn convert_expr(input : Expr) -> BetExpr {
                 panic!("fun expr currently not supported")
             }
         },
+        Expr::SMatch(target, pattern) => BetExpr::SMatch(Box::new(convert_expr(*target)), pattern),
     }
 }

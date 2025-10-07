@@ -1,6 +1,7 @@
 
 use std::rc::Rc;
 use crate::data::runtime::*;
+use crate::data::parse::SPattern;
 use super::gimel::{GimelFun, GimelStmt, GimelVal};
 
 
@@ -18,7 +19,8 @@ pub enum BetStmt {
 pub enum BetExpr {
     Local(Local),
     Var(Rc<str>),
-    Call(Rc<str>, Vec<BetExpr>)
+    Call(Rc<str>, Vec<BetExpr>),
+    SMatch(Box<BetExpr>, SPattern),
 }
 
 #[derive(Debug)]

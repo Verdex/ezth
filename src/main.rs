@@ -40,7 +40,7 @@ fn main() {
             Err(e) => panic!("encountered io error: {e}"),
         };
 
-        let def_or_exprs = match parser::parse(&input) {
+        let top = match parser::parse(&input) {
             Ok(x) => x,
             Err(e) => {
 
@@ -58,7 +58,7 @@ fn main() {
 
         prev_line = String::new();
 
-        match def_or_exprs {
+        match top {
             ReplTopLevel::Def(d) => { 
                 defs.push(d); 
             },
@@ -83,7 +83,13 @@ fn main() {
                 }
             },
             ReplTopLevel::Pat(p) => {
-                println!("{:?}", p);
+                let x : Rc<str> = "input".into();
+                defs.push(Def { 
+                    name: p.name, 
+                    params: vec![Rc::clone(&x)], 
+                    stmts: vec![],
+                    body: Expr::SMatch(Box::new(Expr::Symbol(x)), p.body)
+                })
             }
         }
     }

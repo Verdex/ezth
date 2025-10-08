@@ -4,6 +4,14 @@ use crate::data::runtime::*;
 use crate::data::parse::SPattern;
 use super::gimel::{GimelFun, GimelStmt, GimelVal};
 
+pub enum BetTopLevel {
+    Fun(BetFun),
+    Co(BetCo),
+}
+
+pub struct BetCo {
+
+}
 
 pub struct BetFun {
     pub name : Rc<str>,
@@ -37,9 +45,20 @@ impl std::fmt::Display for BetError {
 
 impl std::error::Error for BetError { }
 
-pub fn compile(input : Vec<BetFun>) -> Result<Vec<GimelFun>, BetError> {
-    input.into_iter().map(compile_fun).collect()
+pub fn compile(input : Vec<BetTopLevel>) -> Result<Vec<GimelFun>, BetError> {
+    input.into_iter().map(compile_top).collect()
 } 
+
+fn compile_top(t : BetTopLevel) -> Result<GimelFun, BetError> {
+    match t {
+        BetTopLevel::Fun(f) => compile_fun(f),
+        BetTopLevel::Co(c) => compile_co(c),
+    }
+}
+
+fn compile_co(co : BetCo) -> Result<GimelFun, BetError> {
+    todo!()
+}
 
 fn compile_fun(f : BetFun) -> Result<GimelFun, BetError> {
     let mut i : usize = 0;

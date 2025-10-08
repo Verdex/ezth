@@ -5,7 +5,7 @@ use an_a_vm::data::*;
 use crate::data::runtime::*;
 use crate::data::parse::*;
 use super::alef;
-use super::bet::{self, BetExpr, BetFun, BetStmt};
+use super::bet::{self, BetExpr, BetFun, BetStmt, BetTopLevel, BetCo};
 use super::gimel;
 
 pub fn compile(input : Vec<TopLevel>, ops: &HashMap<Rc<str>, usize>) -> Result<Vec<Fun<Local>>, Box<dyn std::error::Error>> {
@@ -16,11 +16,15 @@ pub fn compile(input : Vec<TopLevel>, ops: &HashMap<Rc<str>, usize>) -> Result<V
     Ok(input)
 }
 
-fn convert_top_level(input : TopLevel) -> BetFun {
+fn convert_top_level(input : TopLevel) -> BetTopLevel {
     match input { 
-        TopLevel::Def(d) => convert_def(d),
-        TopLevel::Pat(p) => todo!(),
+        TopLevel::Def(d) => BetTopLevel::Fun(convert_def(d)),
+        TopLevel::Pat(p) => BetTopLevel::Co(convert_pat(p)),
     }
+}
+
+fn convert_pat(input : Pat) -> BetCo {
+    todo!()
 }
 
 fn convert_def(input : Def) -> BetFun {
@@ -55,6 +59,5 @@ fn convert_expr(input : Expr) -> BetExpr {
                 panic!("fun expr currently not supported")
             }
         },
-        _ => todo!()
     }
 }

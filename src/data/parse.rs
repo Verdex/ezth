@@ -45,7 +45,6 @@ pub enum Expr {
     Symbol(Rc<str>),
     Number(Rc<str>),
     Data(Rc<str>, Vec<Expr>),
-    SMatch(Box<Expr>, SPattern),
     Call { f : Box<Expr>, params : Vec<Expr> },
 }
 

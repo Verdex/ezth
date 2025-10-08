@@ -10,7 +10,9 @@ pub enum BetTopLevel {
 }
 
 pub struct BetCo {
-
+    pub name : Rc<str>,
+    pub params : Vec<Rc<str>>,
+    pub stmts : Vec<BetStmt>,
 }
 
 pub struct BetFun {

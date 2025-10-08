@@ -65,3 +65,6 @@ fn convert_expr(input : Expr) -> BetExpr {
 // TODO bet needs some sort of ifelse eq thing
 // TODO one level up would have match => if else eq
 // TODO compiler can convert spattern into nested match
+// TODO need access index from data
+// TODO need check kind
+// TODO need items count

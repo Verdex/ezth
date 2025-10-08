@@ -16,6 +16,12 @@ pub enum ReplTopLevel {
 }
 
 #[derive(Debug, Clone)]
+pub enum TopLevel { 
+    Def(Def),
+    Pat(Pat),
+}
+
+#[derive(Debug, Clone)]
 pub struct Def {
     pub name: Rc<str>,
     pub params: Vec<Rc<str>>,

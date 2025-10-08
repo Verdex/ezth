@@ -20,7 +20,6 @@ pub enum BetExpr {
     Local(Local),
     Var(Rc<str>),
     Call(Rc<str>, Vec<BetExpr>),
-    SMatch(Box<BetExpr>, SPattern),
 }
 
 #[derive(Debug)]

@@ -18,7 +18,7 @@ use crate::runtime::ops;
 
 fn main() {
 
-    let mut defs = vec![];
+    let mut top_level = vec![];
     let mut prev_line = String::new();
 
     loop {
@@ -60,16 +60,16 @@ fn main() {
 
         match top {
             ReplTopLevel::Def(d) => { 
-                defs.push(d); 
+                top_level.push(TopLevel::Def(d)); 
             },
             ReplTopLevel::Expr(e) => { 
-                let mut defs = defs.clone();
+                let mut top_level = top_level.clone();
                 let ops = ops::op_list();
                 let op_map : HashMap<Rc<str>, usize> = ops.iter().enumerate().map(|(i, x)| (x.name(), i)).collect();
 
-                defs.insert(0, Def { name: "main".into(), params: vec![], stmts: vec![], body: e});
+                top_level.insert(0, TopLevel::Def(Def { name: "main".into(), params: vec![], stmts: vec![], body: e}));
 
-                match compiler::compile(defs, &op_map) {
+                match compiler::compile(top_level, &op_map) {
                     Ok(fs) => {
                         let mut vm = Vm::new(fs, ops);
 
@@ -83,13 +83,7 @@ fn main() {
                 }
             },
             ReplTopLevel::Pat(p) => {
-                let x : Rc<str> = "input".into();
-                defs.push(Def { 
-                    name: p.name, 
-                    params: vec![Rc::clone(&x)], 
-                    stmts: vec![],
-                    body: Expr::SMatch(Box::new(Expr::Symbol(x)), p.body)
-                })
+                top_level.push(TopLevel::Pat(p));
             }
         }
     }

@@ -8,12 +8,19 @@ use super::alef;
 use super::bet::{self, BetExpr, BetFun, BetStmt};
 use super::gimel;
 
-pub fn compile(input : Vec<Def>, ops: &HashMap<Rc<str>, usize>) -> Result<Vec<Fun<Local>>, Box<dyn std::error::Error>> {
-    let input = input.into_iter().map(convert_def).collect::<Vec<_>>();
+pub fn compile(input : Vec<TopLevel>, ops: &HashMap<Rc<str>, usize>) -> Result<Vec<Fun<Local>>, Box<dyn std::error::Error>> {
+    let input = input.into_iter().map(convert_top_level).collect::<Vec<_>>();
     let input = bet::compile(input)?;
     let input = gimel::compile(input, ops)?;
     let input = alef::compile(input)?;
     Ok(input)
+}
+
+fn convert_top_level(input : TopLevel) -> BetFun {
+    match input { 
+        TopLevel::Def(d) => convert_def(d),
+        TopLevel::Pat(p) => todo!(),
+    }
 }
 
 fn convert_def(input : Def) -> BetFun {
@@ -48,6 +55,6 @@ fn convert_expr(input : Expr) -> BetExpr {
                 panic!("fun expr currently not supported")
             }
         },
-        Expr::SMatch(target, pattern) => BetExpr::SMatch(Box::new(convert_expr(*target)), pattern),
+        _ => todo!()
     }
 }

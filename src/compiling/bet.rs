@@ -131,14 +131,14 @@ mod test {
 
         */
 
-        let other = BetFun { 
+        let other = BetTopLevel::Fun(BetFun { 
             name: "other".into(),
             params: vec!["a".into(), "b".into()],
             stmts: vec![BetStmt::Let{var: "z".into(), val: BetExpr::Call("add".into(), vec![BetExpr::Var("a".into()), BetExpr::Var("b".into())])}],
             body: BetExpr::Call("add".into(), vec![BetExpr::Var("z".into()), BetExpr::Local(Local::Number(5.0))]),
-        };
+        });
 
-        let main = BetFun {
+        let main = BetTopLevel::Fun(BetFun {
             name: "main".into(),
             params: vec![],
             stmts: vec![
@@ -182,7 +182,7 @@ mod test {
                     ])
                 ])
             ]) 
-        };
+        });
 
         let ops : Vec<GenOp<Local, ()>> = vec![
             GenOp::Local

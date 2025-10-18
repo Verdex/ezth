@@ -2,6 +2,7 @@
 #[derive(Debug)]
 pub enum RuntimeError {
     Type { src: &'static str, expected: &'static str },
+    Words(&'static str),
 }
 
 impl std::fmt::Display for RuntimeError {

@@ -1,4 +1,5 @@
 
+use std::error::Error;
 use std::rc::Rc;
 use an_a_vm::data::*;
 use crate::data::runtime::*;
@@ -49,17 +50,19 @@ fn data_access(globals: &mut Vec<Global>, locals: &[Local], params: &[usize]) ->
     // with Ref or Number
 
     if let Local::Ref(addr) = &locals[params[0]] && 
-       let Local::Number(index) = &locals[params[1]] {
-        
-        // TODO grab the global, it had better either be data or a ref to data
-        // does it have an index that looks good?
-        // that had better be a number or ref
-        // return that
-        todo!()
+       let Local::Number(index) = &locals[params[1]] &&
+       let Global::Data(kind, items) = deref_until_not_ref(globals, *addr)? &&
+       let index = *index as usize &&
+       items.len() > index {
+
+        match &items[index] {
+            Global::Number(x) => Ok(Some(Local::Number(*x))),
+            Global::Ref(x) => Ok(Some(Local::Ref(*x))),
+            _ => Err(Box::new(RuntimeError::Words("data_access needs to find a number or ref"))),
+        }
     }
     else {
-        // TODO what about number mismatch?
-        return Err(Box::new(RuntimeError::Type { src: "data_access", expected: "Local::Ref" }));
+        return Err(Box::new(RuntimeError::Words("some problem with data_access")));
     }
 }
 
@@ -73,4 +76,27 @@ fn local_to_global(local : &Local) -> Global {
         Local::Symbol(s) => Global::Data(Rc::clone(s), vec![]),
     }
 }
+
+fn deref_until_not_ref(globals: &[Global], mut addr : usize) -> Result<&Global, Box<dyn Error>> {
+    let mut seen = std::collections::HashSet::new();
+    loop {
+        if !seen.insert(addr) {
+            return Err(Box::new(RuntimeError::Words("deref until not ref encountered loop")));
+        }
+
+        if globals.len() <= addr {
+            return Err(Box::new(RuntimeError::Words("deref until not ref encountered a ref out of range")));
+        }
+
+        match &globals[addr] {
+            x @ Global::Number(_) => { return Ok(x); },
+            x @ Global::Data(_, _) => { return Ok(x); },
+            Global::Ref(x) => {
+                addr = *x;
+            }
+        }
+    }
+}
+
+
 

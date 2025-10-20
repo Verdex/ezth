@@ -1,7 +1,9 @@
 
 use std::rc::Rc;
 
+pub const add_op : &'static str = "add";
 pub const cons_op : &'static str = "cons";
+pub const index_op : &'static str = "index";
 pub const list_data : &'static str = "list";
 
 #[derive(Clone, Debug)]

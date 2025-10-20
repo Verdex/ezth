@@ -7,10 +7,9 @@ use crate::runtime::error::*;
 
 pub fn op_list() -> Vec<GenOp<Local, Global>> {
     vec![ 
-        GenOp::Local { name: "add".into(), op: add },
+        GenOp::Local { name: add_op.into(), op: add },
         GenOp::DynGlobal { name: cons_op.into(), op: cons },
-        // TODO data_access 
-        GenOp::DynGlobal { name: "data_access".into(), op: data_access },
+        GenOp::DynGlobal { name: index_op.into(), op: data_access },
     ]
 }
 

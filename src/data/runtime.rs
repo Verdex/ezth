@@ -11,6 +11,7 @@ pub enum Local {
     Number(f64),
     Ref(usize),
     Symbol(Rc<str>),
+    Bool(bool),
 }
 
 #[derive(Debug)]
@@ -18,4 +19,5 @@ pub enum Global {
     Number(f64),
     Ref(usize),
     Data(Rc<str>, Vec<Global>),
+    Bool(bool),
 }

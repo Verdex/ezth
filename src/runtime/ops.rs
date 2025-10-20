@@ -57,6 +57,7 @@ fn data_access(globals: &mut Vec<Global>, locals: &[Local], params: &[usize]) ->
         match &items[index] {
             Global::Number(x) => Ok(Some(Local::Number(*x))),
             Global::Ref(x) => Ok(Some(Local::Ref(*x))),
+            Global::Bool(x) => Ok(Some(Local::Bool(*x))),
             _ => Err(Box::new(RuntimeError::Words("data_access needs to find a number or ref"))),
         }
     }
@@ -73,6 +74,7 @@ fn local_to_global(local : &Local) -> Global {
         Local::Number(x) => Global::Number(*x),
         Local::Ref(addr) => Global::Ref(*addr),
         Local::Symbol(s) => Global::Data(Rc::clone(s), vec![]),
+        Local::Bool(x) => Global::Bool(*x),
     }
 }
 
@@ -90,6 +92,7 @@ fn deref_until_not_ref(globals: &[Global], mut addr : usize) -> Result<&Global, 
         match &globals[addr] {
             x @ Global::Number(_) => { return Ok(x); },
             x @ Global::Data(_, _) => { return Ok(x); },
+            x @ Global::Bool(_) => { return Ok(x); },
             Global::Ref(x) => {
                 addr = *x;
             }

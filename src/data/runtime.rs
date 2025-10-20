@@ -1,6 +1,7 @@
 
 use std::rc::Rc;
 
+pub const eq_op : &'static str = "eq";
 pub const add_op : &'static str = "add";
 pub const cons_op : &'static str = "cons";
 pub const index_op : &'static str = "index";

@@ -66,8 +66,12 @@ fn data_access(globals: &mut Vec<Global>, locals: &[Local], params: &[usize]) ->
     }
 }
 
-// TODO do a set_branch_if_kind_eq or something.  Maybe just a general purpose eq op
+fn eq(globals: &mut Vec<Global>, locals: &[Local], params: &[usize]) -> Result<Option<Local>, Box<dyn Error>> {
+    todo!()
+}
 
+// TODO branch to label on true
+// TODO label? (not really an op)
 
 fn local_to_global(local : &Local) -> Global {
     match local {
